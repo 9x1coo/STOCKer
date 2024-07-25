@@ -1,9 +1,10 @@
 {
     "version": 2,
-    "routes": [
+    "public": true,
+    "builds": [
       {
-        "src": "/(.*)",
-        "dest": "/main.html"
+        "src": "index.html",
+        "use": "@vercel/static"
       }
     ]
   }
