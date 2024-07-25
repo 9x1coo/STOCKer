@@ -3,8 +3,12 @@
     "public": true,
     "routes": [
       {
+        "src": "/",
+        "dest": "public/main.html"
+      },
+      {
         "src": "/(.*)",
-        "dest": "/main.html"
+        "dest": "/$1"
       }
     ]
   }
