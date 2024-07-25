@@ -4,7 +4,7 @@
     "routes": [
       {
         "src": "/",
-        "dest": "public/main.html"
+        "dest": "/main.html"
       },
       {
         "src": "/(.*)",
