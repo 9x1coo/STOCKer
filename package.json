@@ -1,0 +1,38 @@
+{
+  "name": "robot-management",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron": "^31.2.0",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.robot-management.id",
+    "win": {
+      "icon": "icons/icon.ico",
+      "target": "nsis"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "main.html",
+      "icons/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ]
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "xlsx": "^0.18.5"
+  }
+}
