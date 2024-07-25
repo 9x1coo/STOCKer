@@ -5,6 +5,12 @@
         "src": "main.html",
         "use": "@vercel/static"
         }
-    ]
+    ],
+    "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "main.html"
+    }
+  ]
 }
   
