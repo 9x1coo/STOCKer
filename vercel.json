@@ -10,11 +10,11 @@
   "routes": [
     {
       "src": "/",
-      "dest": "/public/main.html"
+      "dest": "/main.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/public/$1"
+      "dest": "/$1"
     }
   ]
 }
