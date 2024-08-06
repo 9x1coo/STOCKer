@@ -307,4 +307,34 @@ document.getElementById('clearBtn').addEventListener('click', function() {
     };
 });
 
+document.getElementById('exportBtn').addEventListener('click', function(){
+    // Create a new data array with modified values
+    const modifiedDataRows = dataRows.map(row => {
+        const newRow = { ...row };
+        for (let key in newRow) {
+            if (typeof newRow[key] === 'string' && newRow[key].includes("button")) {
+                newRow[key] = "Not returned";
+            }
+        }
+        return newRow;
+    });
+
+    const headers = Object.keys(modifiedDataRows[0]);
+    const upperCaseHeaders = headers.map(header => header.toUpperCase());
+
+    const dataWithUpperCaseHeaders = modifiedDataRows.map(row => {
+        const newRow = {};
+        headers.forEach((header, index) => {
+            newRow[upperCaseHeaders[index]] = row[header];
+        });
+        return newRow;
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(dataWithUpperCaseHeaders, { header: upperCaseHeaders });
+    
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, "Robot_Inventory.xlsx");
+});
+
 window.onload = loadData;
