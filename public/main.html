@@ -59,7 +59,8 @@
                         <input type="text" placeholder="Enter remarks" class="input-box" id="remarks-input">
                     </div>
                 </div>
-                <button onclick="getInputData()" class="btn btn-primary" id="comfirm-btn">Comfirm</button>
+                <!-- <button onclick="getInputData()" class="btn btn-primary" id="comfirm-btn">Comfirm</button> -->
+                <button class="btn btn-primary" id="comfirm-btn">Comfirm</button>
                 <div class="btn-container">
                     <button id="save-btn" class="btn btn-primary" style="display: none;">Save</button>
                     <button id="cancel-btn" class="cancel-btn" style="display: none;">Cancel</button>
@@ -129,6 +130,10 @@
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top" ><i class="bi bi-arrow-up"></i></a>
     </div>
+
+    <script type="module" src="js/firebase_firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
