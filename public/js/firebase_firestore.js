@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-// import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 import {getFirestore, doc, setDoc, collection, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 let currentId = 1;
@@ -158,12 +157,13 @@ async function deleteData(id) {
   if (isConfirmed) {
       resetInput();
       const index = dataRows.findIndex(data => String(data.id) === String(id));
-      if (index !== -1) {
-          await database.collection('dataRows').doc(String(id)).delete();
-          dataRows.splice(index, 1);
-          const tableBody = document.getElementById('data-table-body');
-          tableBody.innerHTML = '';
-          dataRows.forEach(data => addToTable(data));
+      if (index !== -1) { 
+            const docRef = doc(firestore, 'dataRows', String(id));
+            await deleteDoc(docRef);
+            dataRows.splice(index, 1);
+            const tableBody = document.getElementById('data-table-body');
+            tableBody.innerHTML = '';
+            dataRows.forEach(data => addToTable(data));
       }
   }
 }
@@ -373,9 +373,5 @@ document.getElementById('exportBtn').addEventListener('click', function(){
   XLSX.utils.book_append_sheet(wb, ws, "Data");
   XLSX.writeFile(wb, "Robot_Inventory.xlsx");
 });
-
-
-// const analytics = getAnalytics(app);
-// writeData();
 
 window.onload = loadData;
