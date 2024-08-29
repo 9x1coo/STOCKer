@@ -38,11 +38,15 @@ function resetInput(){
   document.getElementById('comfirm-btn').style.display = 'block';
   document.getElementById('save-btn').style.display = 'none';
   document.getElementById('cancel-btn').style.display = 'none';
+  document.getElementById('video').style.display = 'none';
+  document.getElementById('canvas').style.display = 'none';
+  document.getElementById('take-photo-btn').style.display = 'none';
 
   document.getElementById('name-input').value = "";
   document.getElementById('item-input').value = "";
   document.getElementById('date-input').value = "";
   document.getElementById('remarks-input').value = "";
+  document.getElementById('photo-input-url').value = "";
 }
 
 function addToTable(data) {
@@ -57,7 +61,7 @@ function addToTable(data) {
       <td><span><button data-id="${data.id}" class="btn btn-primary edit-btn" style="margin:5px;"><i class="fa-solid fa-pen fa-lg" style="color: #ffffff;"></i></button><button data-id="${data.id}" class="btn btn-primary delete-btn" style="background-color:#d73200;"><i class="fa-regular fa-trash-can fa-lg" style="color: #ffffff;"></i></button></span></td>
       <td>${data.id}</td>
       <td>${data.name}</td>
-      <td>${data.item}</td>
+      <td>${data.item}\n<img src="${data.itemPhoto}" alt="Item Photo" width="200" height="200"></td>
       <td>${data.dateBorrow}</td>
       <td>${data.dateExpectedReturn}</td>
       <td>${data.dateReturn}</td>
@@ -89,19 +93,55 @@ async function loadData() {
   dataRows.forEach(data => addToTable(data));
 }
 
+//take photo
+document.getElementById('photo-btn').addEventListener('click', function() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const downloadLink = document.getElementById('take-photo-btn');
+
+    downloadLink.style.display = 'block';
+
+    // Ask the user to grant access to their camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.style.display = 'block';
+            video.srcObject = stream;
+            video.play();
+
+            document.getElementById('take-photo-btn').addEventListener('click', function() {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+
+                // Stop all video streams
+                stream.getTracks().forEach(track => track.stop());
+
+                // Convert the canvas image to a data URL and create a download link
+                const dataUrl = canvas.toDataURL('image/png');
+                downloadLink.href = dataUrl;
+                document.getElementById('photo-input-url').value = dataUrl;
+                // downloadLink.download = 'photo.png';
+            });
+        })
+        .catch(error => {
+            console.error('Error accessing the camera: ', error);
+        });
+});
+
 document.getElementById('comfirm-btn').addEventListener('click', async () => {
   await getInputData();
 });
 async function getInputData() {
   const name = document.getElementById('name-input').value;
   const item = document.getElementById('item-input').value;
+  const itemPhoto = document.getElementById('photo-input-url').value;
   const dateBorrow = getDate();
   const dateReturn = "";
   const dateExpectedReturn = document.getElementById('date-input').value;
   const remarks = document.getElementById('remarks-input').value;
 
   if (name && item && dateExpectedReturn) {
-      const data = { id: currentId, name, item, dateBorrow, dateExpectedReturn, dateReturn, remarks };
+      const data = { id: currentId, name, item, itemPhoto, dateBorrow, dateExpectedReturn, dateReturn, remarks };
       const docRef = doc(firestore, 'dataRows', String(currentId));
       await setDoc(docRef, data);
       dataRows.push(data);
@@ -198,17 +238,20 @@ async function editData(id) {
 
   document.getElementById('name-input').value = dataToEdit.name;
   document.getElementById('item-input').value = dataToEdit.item;
+  document.getElementById('photo-input-url').value = dataToEdit.itemPhoto;
   document.getElementById('date-input').value = dataToEdit.dateExpectedReturn;
   document.getElementById('remarks-input').value = dataToEdit.remarks;
 
   document.getElementById('save-btn').onclick = async function() {
       const editedName = document.getElementById('name-input').value;
       const editedItem = document.getElementById('item-input').value;
+      const editedItemPhoto = document.getElementById('photo-input-url').value;
       const editedDate = document.getElementById('date-input').value;
       const editedRemarks = document.getElementById('remarks-input').value;
 
       dataToEdit.name = editedName;
       dataToEdit.item = editedItem;
+      dataToEdit.itemPhoto = editedItemPhoto;
       dataToEdit.dateExpectedReturn = editedDate;
       dataToEdit.remarks = editedRemarks;
 
@@ -233,19 +276,25 @@ async function editData(id) {
 
 //update ui table's data
 function updateTableRow(data) {
-  const tableBody = document.getElementById('data-table-body');
-  const rows = tableBody.getElementsByTagName('tr');
-  for (let i = 0; i < rows.length; i++) {
-      const rowId = parseInt(rows[i].getElementsByTagName('td')[1].textContent); // Assuming id is in the second column
-      if (String(rowId) === String(data.id)) {
-          rows[i].getElementsByTagName('td')[2].textContent = data.name;
-          rows[i].getElementsByTagName('td')[3].textContent = data.item;
-          rows[i].getElementsByTagName('td')[5].textContent = data.dateExpectedReturn;
-          rows[i].getElementsByTagName('td')[7].textContent = data.remarks;
-          break;
-      }
-  }
+    const tableBody = document.getElementById('data-table-body');
+    const rows = tableBody.getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const rowId = parseInt(rows[i].getElementsByTagName('td')[1].textContent); // Assuming id is in the second column
+        
+        if (String(rowId) === String(data.id)) {
+            rows[i].getElementsByTagName('td')[2].textContent = data.name;
+            rows[i].getElementsByTagName('td')[3].innerHTML = `
+                ${data.item}<br>
+                <img src="${data.itemPhoto}" alt="Item Photo" width="200" height="200">
+            `;
+            rows[i].getElementsByTagName('td')[5].textContent = data.dateExpectedReturn;
+            rows[i].getElementsByTagName('td')[7].textContent = data.remarks;
+            break;
+        }
+    }
 }
+
 
 // clear all data
 document.getElementById('clearBtn').addEventListener('click', function() {
