@@ -94,39 +94,59 @@ async function loadData() {
 }
 
 //take photo
+// document.getElementById('photo-btn').addEventListener('click', function() {
+//     const video = document.getElementById('video');
+//     const canvas = document.getElementById('canvas');
+//     const downloadLink = document.getElementById('take-photo-btn');
+
+//     document.getElementById('photo-container').style.display = "block";
+//     downloadLink.style.display = 'block';
+
+//     // Ask the user to grant access to their camera
+//     navigator.mediaDevices.getUserMedia({ video: true })
+//         .then(stream => {
+//             video.style.display = 'block';
+//             video.srcObject = stream;
+//             video.play();
+
+//             document.getElementById('take-photo-btn').addEventListener('click', function() {
+//                 canvas.width = video.videoWidth;
+//                 canvas.height = video.videoHeight;
+//                 canvas.getContext('2d').drawImage(video, 0, 0);
+
+//                 // Stop all video streams
+//                 stream.getTracks().forEach(track => track.stop());
+
+//                 // Convert the canvas image to a data URL and create a download link
+//                 const dataUrl = canvas.toDataURL('image/png');
+//                 downloadLink.href = dataUrl;
+//                 document.getElementById('photo-input-url').value = dataUrl;
+//                 // downloadLink.download = 'photo.png';
+//             });
+//         })
+//         .catch(error => {
+//             console.error('Error accessing the camera: ', error);
+//         });
+// });
 document.getElementById('photo-btn').addEventListener('click', function() {
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const downloadLink = document.getElementById('take-photo-btn');
-
-    downloadLink.style.display = 'block';
-
-    // Ask the user to grant access to their camera
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-            video.style.display = 'block';
-            video.srcObject = stream;
-            video.play();
-
-            document.getElementById('take-photo-btn').addEventListener('click', function() {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-
-                // Stop all video streams
-                stream.getTracks().forEach(track => track.stop());
-
-                // Convert the canvas image to a data URL and create a download link
-                const dataUrl = canvas.toDataURL('image/png');
-                downloadLink.href = dataUrl;
-                document.getElementById('photo-input-url').value = dataUrl;
-                // downloadLink.download = 'photo.png';
-            });
-        })
-        .catch(error => {
-            console.error('Error accessing the camera: ', error);
-        });
+    document.getElementById('photo-input-url').click();
 });
+
+document.getElementById('photo-input-url').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.width = 200;
+            img.height = 200;
+            document.body.appendChild(img); 
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
 
 document.getElementById('comfirm-btn').addEventListener('click', async () => {
   await getInputData();

@@ -50,16 +50,18 @@
                         <label class="label-text">Item's Name: </label>
                         <div class="d-flex flex-grow-1 align-items-center item-container">
                             <input type="text" placeholder="Enter the item" class="input-box-item" id="item-input" required>
+                            <!-- <button class="btn btn-primary ms-2" id="photo-btn"><i class="fa-solid fa-camera"></i></button> -->
+                            <input type="file" id="photo-input-url" accept="image/*" capture="environment" style="display: none;">
                             <button class="btn btn-primary ms-2" id="photo-btn"><i class="fa-solid fa-camera"></i></button>
                         </div>
                     </div>
                     <!-- Photo elements -->
-                     <div class="mb-3">
-                        <video id="video" style="display:none;"></video>
-                        <canvas id="canvas" style="display:none;"></canvas>
-                        <button class="btn btn-primary" id="take-photo-btn" style="display:none;"><i class="fa-solid fa-camera-retro"></i></button>
+                     <!-- <div class="mb-3" style="display: none;" id="photo-container">
+                        <video id="video"></video>
+                        <canvas id="canvas" style="display: none;"></canvas>
+                        <button class="btn btn-primary" id="take-photo-btn"><i class="fa-solid fa-camera-retro"></i></button>
                         <input type="text" id="photo-input-url" style="display: none;">
-                    </div>
+                    </div> -->
                     <!-- Photo elements -->
                     <div class="mb-3">
                         <label class="label-text">Date Return: </label>
