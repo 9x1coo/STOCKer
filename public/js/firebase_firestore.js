@@ -57,11 +57,13 @@ function addToTable(data) {
       data.dateReturn = `<button data-id="${data.id}" class="btn btn-primary return-btn">Return</button>`;
   }
 
+  const itemPhotoHtml = data.itemPhoto ? `<img src="${data.itemPhoto}" alt="Item Photo" width="200" height="200">` : '';
+
   newRow.innerHTML = `
       <td><span><button data-id="${data.id}" class="btn btn-primary edit-btn" style="margin:5px;"><i class="fa-solid fa-pen fa-lg" style="color: #ffffff;"></i></button><button data-id="${data.id}" class="btn btn-primary delete-btn" style="background-color:#d73200;"><i class="fa-regular fa-trash-can fa-lg" style="color: #ffffff;"></i></button></span></td>
       <td>${data.id}</td>
       <td>${data.name}</td>
-      <td>${data.item}\n<img src="${data.itemPhoto}" alt="Item Photo" width="200" height="200"></td>
+      <td>${data.item}<br>${itemPhotoHtml}</td>
       <td>${data.dateBorrow}</td>
       <td>${data.dateExpectedReturn}</td>
       <td>${data.dateReturn}</td>
