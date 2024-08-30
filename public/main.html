@@ -11,9 +11,6 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet"> 
 
-    <!-- Favicon -->
-    <!-- <link href="img/favicon.ico" rel="icon"> -->
-
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,21 +47,14 @@
                         <label class="label-text">Item's Name: </label>
                         <div class="d-flex flex-grow-1 align-items-center item-container">
                             <input type="text" placeholder="Enter the item" class="input-box-item" id="item-input" required>
-                            <!-- <button class="btn btn-primary ms-2" id="photo-btn"><i class="fa-solid fa-camera"></i></button> -->
-                            <input type="text" id="photo-input-url" style="display: none;">
-                            <input type="file" id="take-photo-input" accept="image/*" capture="environment" style="display: none;">
+                            <!-- Photo Elements Start-->
+                            <input type="text" id="photo-input-url" style="display: none;"> <!-- Store Data Url-->
+                            <input type="file" id="take-photo-input" accept="image/*" capture="environment" style="display: none;"> <!-- Trigger device camera-->
                             <button class="btn btn-primary ms-2" id="photo-btn"><i class="fa-solid fa-camera"></i></button>
+                            <!-- Photo Elements End -->
                         </div>
-                        <br><img id="itemPhotoImg" scr="" alt="Item photo" class="item-photo-img" style="display: none;">
                     </div>
-                    <!-- Photo elements -->
-                     <!-- <div class="mb-3" style="display: none;" id="photo-container">
-                        <video id="video"></video>
-                        <canvas id="canvas" style="display: none;"></canvas>
-                        <button class="btn btn-primary" id="take-photo-btn"><i class="fa-solid fa-camera-retro"></i></button>
-                        <input type="text" id="photo-input-url" style="display: none;">
-                    </div> -->
-                    <!-- Photo elements -->
+                    <img id="itemPhotoImg" scr="" alt="Item photo" class="mb-3 item-photo-img" style="display: none;">
                     <div class="mb-3">
                         <label class="label-text">Date Return: </label>
                         <input type="date" placeholder="Select the date" class="input-box" id="date-input" required>
@@ -166,7 +156,5 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
-
-    <script src="js/getData.js"></script>
 </body>
 </html>

@@ -16,6 +16,7 @@ const firebaseApp = initializeApp({
 
 const firestore = getFirestore(firebaseApp);
 
+//get the current date time
 function getDate(){
     const now = new Date();
 
@@ -38,8 +39,6 @@ function resetInput(){
   document.getElementById('comfirm-btn').style.display = 'block';
   document.getElementById('save-btn').style.display = 'none';
   document.getElementById('cancel-btn').style.display = 'none';
-//   document.getElementById('video').style.display = 'none';
-//   document.getElementById('canvas').style.display = 'none';
   document.getElementById('itemPhotoImg').style.display = 'none';
 
   document.getElementById('name-input').value = "";
@@ -49,6 +48,7 @@ function resetInput(){
   document.getElementById('photo-input-url').value = "";
 }
 
+//display the data in the table
 function addToTable(data) {
   const tableBody = document.getElementById('data-table-body');
   const newRow = document.createElement('tr');
@@ -74,6 +74,7 @@ function addToTable(data) {
   }
 }
 
+//load the data from firestore to the table
 async function loadData() {
   const dataRowsCollection = collection(firestore, 'dataRows');
   const querySnapshot = await getDocs(dataRowsCollection);
@@ -94,63 +95,60 @@ async function loadData() {
 }
 
 //take photo
-// document.getElementById('photo-btn').addEventListener('click', function() {
-//     const video = document.getElementById('video');
-//     const canvas = document.getElementById('canvas');
-//     const downloadLink = document.getElementById('take-photo-btn');
-
-//     document.getElementById('photo-container').style.display = "block";
-//     downloadLink.style.display = 'block';
-
-//     // Ask the user to grant access to their camera
-//     navigator.mediaDevices.getUserMedia({ video: true })
-//         .then(stream => {
-//             video.style.display = 'block';
-//             video.srcObject = stream;
-//             video.play();
-
-//             document.getElementById('take-photo-btn').addEventListener('click', function() {
-//                 canvas.width = video.videoWidth;
-//                 canvas.height = video.videoHeight;
-//                 canvas.getContext('2d').drawImage(video, 0, 0);
-
-//                 // Stop all video streams
-//                 stream.getTracks().forEach(track => track.stop());
-
-//                 // Convert the canvas image to a data URL and create a download link
-//                 const dataUrl = canvas.toDataURL('image/png');
-//                 downloadLink.href = dataUrl;
-//                 document.getElementById('photo-input-url').value = dataUrl;
-//                 // downloadLink.download = 'photo.png';
-//             });
-//         })
-//         .catch(error => {
-//             console.error('Error accessing the camera: ', error);
-//         });
-// });
 document.getElementById('photo-btn').addEventListener('click', function() {
     document.getElementById('take-photo-input').click();
 });
-
 document.getElementById('take-photo-input').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const camera = document.getElementById('itemPhotoImg');
             const dataUrl = e.target.result;
-            
-            console.log(dataUrl);
+            const img = new Image();
 
-            camera.src = dataUrl;
-            camera.style.display = "block";
-            document.getElementById('photo-input-url').value = dataUrl;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Set canvas dimensions
+                const MAX_WIDTH = 200; 
+                const MAX_HEIGHT = 200;
+                let width = img.width;
+                let height = img.height;
+
+                // Preserving aspect ratio
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                ctx.drawImage(img, 0, 0, width, height); //canvas cannot accept dataUrl
+
+                // Compress the image
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.2); 
+
+                const camera = document.getElementById('itemPhotoImg');
+                camera.src = compressedDataUrl;
+                camera.style.display = 'block';
+                document.getElementById('photo-input-url').value = compressedDataUrl;
+            };
+            img.src = dataUrl;
         };
         reader.readAsDataURL(file);
     }
 });
 
-
+//get data from input
 document.getElementById('comfirm-btn').addEventListener('click', async () => {
   await getInputData();
 });
@@ -176,6 +174,7 @@ async function getInputData() {
   }
 }
 
+//event listener for edit delete return
 document.addEventListener('DOMContentLoaded', (event) => {
   document.getElementById('data-table-body').addEventListener('click', async (e) => {
       if (e.target.closest('.return-btn')) {
@@ -191,6 +190,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   });
 });
 
+//return item's date
 async function returnData(id) {
   const data = dataRows.find(data => String(data.id) === String(id));
   if (!data) {
@@ -215,6 +215,7 @@ async function returnData(id) {
   }
 }
 
+//delete current row data
 async function deleteData(id) {
   const isConfirmed = confirm("Are you sure you want to delete this?");
   if (isConfirmed) {
@@ -231,6 +232,7 @@ async function deleteData(id) {
   }
 }
 
+//edit current row data
 async function editData(id) {
   const dataToEdit = dataRows.find(data => String(data.id) === String(id));
   if (!dataToEdit) {
@@ -317,7 +319,6 @@ function updateTableRow(data) {
         }
     }
 }
-
 
 // clear all data
 document.getElementById('clearBtn').addEventListener('click', function() {
@@ -424,6 +425,7 @@ document.getElementById('returnedBtn').addEventListener('click', function() {
   filteredData.forEach(data => addToTable(data));
 });
 
+//export data to excel file
 document.getElementById('exportBtn').addEventListener('click', function(){
   const headers = ["ID", "NAME", "ITEM", "DATEBORROW", "DATEEXPECTEDRETURN", "DATERETURN", "REMARKS"];
 
