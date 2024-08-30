@@ -135,11 +135,14 @@ document.getElementById('photo-btn').addEventListener('click', function() {
 document.getElementById('photo-input-url').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
-        const camera = document.getElementById('itemPhotoImg');
         const reader = new FileReader();
         reader.onload = function(e) {
-            camera.src = e.target.result;
+            const camera = document.getElementById('itemPhotoImg');
+            const dataUrl = e.target.result;
+
+            camera.src = dataUrl;
             camera.style.display = "block";
+            document.getElementById('photo-input-url').value = dataUrl;
         };
         reader.readAsDataURL(file);
     }
