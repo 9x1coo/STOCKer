@@ -135,7 +135,7 @@ document.getElementById('take-photo-input').addEventListener('change', function(
                 ctx.drawImage(img, 0, 0, width, height); //canvas cannot accept dataUrl
 
                 // Compress the image
-                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.2); 
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.4); 
 
                 const camera = document.getElementById('itemPhotoImg');
                 camera.src = compressedDataUrl;
