@@ -211,6 +211,11 @@
   max-width: 60%;
 }
 
+.item-photo-img{
+  width: 200;
+  height: 200;
+}
+
 .passwordModal {
 display: none; 
 position: fixed; 

@@ -40,7 +40,7 @@ function resetInput(){
   document.getElementById('cancel-btn').style.display = 'none';
   document.getElementById('video').style.display = 'none';
   document.getElementById('canvas').style.display = 'none';
-  document.getElementById('take-photo-btn').style.display = 'none';
+  document.getElementById('itemPhotoImg').style.display = 'none';
 
   document.getElementById('name-input').value = "";
   document.getElementById('item-input').value = "";
@@ -135,13 +135,11 @@ document.getElementById('photo-btn').addEventListener('click', function() {
 document.getElementById('photo-input-url').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
+        const camera = document.getElementById('itemPhotoImg');
         const reader = new FileReader();
         reader.onload = function(e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.width = 200;
-            img.height = 200;
-            document.body.appendChild(img); 
+            camera.src = e.target.result;
+            camera.style.display = "block";
         };
         reader.readAsDataURL(file);
     }
