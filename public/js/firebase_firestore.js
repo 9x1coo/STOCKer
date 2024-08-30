@@ -142,7 +142,7 @@ document.getElementById('photo-input-url').addEventListener('change', function(e
 
             camera.src = dataUrl;
             camera.style.display = "block";
-            document.getElementById('photo-input-url').value = dataUrl;
+            document.getElementById('photo-input-url').setAttribute('value', dataUrl);
         };
         reader.readAsDataURL(file);
     }
