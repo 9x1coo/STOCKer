@@ -38,8 +38,8 @@ function resetInput(){
   document.getElementById('comfirm-btn').style.display = 'block';
   document.getElementById('save-btn').style.display = 'none';
   document.getElementById('cancel-btn').style.display = 'none';
-  document.getElementById('video').style.display = 'none';
-  document.getElementById('canvas').style.display = 'none';
+//   document.getElementById('video').style.display = 'none';
+//   document.getElementById('canvas').style.display = 'none';
   document.getElementById('itemPhotoImg').style.display = 'none';
 
   document.getElementById('name-input').value = "";
@@ -129,20 +129,22 @@ async function loadData() {
 //         });
 // });
 document.getElementById('photo-btn').addEventListener('click', function() {
-    document.getElementById('photo-input-url').click();
+    document.getElementById('take-photo-input').click();
 });
 
-document.getElementById('photo-input-url').addEventListener('change', function(event) {
+document.getElementById('take-photo-input').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const camera = document.getElementById('itemPhotoImg');
             const dataUrl = e.target.result;
+            
+            console.log(dataUrl);
 
             camera.src = dataUrl;
             camera.style.display = "block";
-            document.getElementById('photo-input-url').setAttribute('value', dataUrl);
+            document.getElementById('photo-input-url').value = dataUrl;
         };
         reader.readAsDataURL(file);
     }
