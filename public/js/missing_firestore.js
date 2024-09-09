@@ -1,17 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {getFirestore, doc, setDoc, collection, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {query, getFirestore, doc, setDoc, collection, getDocs, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 let currentId = 1;
-let dataRows = [];
+let missingData = [];
 
 const firebaseApp = initializeApp({
-  apiKey: "AIzaSyBHLJItw-f9ED86zxN3ex2bFgz_1Jtv6L8",
-  authDomain: "robot-inventory-management.firebaseapp.com",
-  projectId: "robot-inventory-management",
-  storageBucket: "robot-inventory-management.appspot.com",
-  messagingSenderId: "362928124242",
-  appId: "1:362928124242:web:6ccfd02d57ff7a423b8a8b",
-  measurementId: "G-7LKLJ9195M"
+    apiKey: "AIzaSyBVGn_CxkErw_So6AsdbL3qqtxmp9TQapE",
+    authDomain: "robot-inventory-manageme-9e239.firebaseapp.com",
+    projectId: "robot-inventory-manageme-9e239",
+    storageBucket: "robot-inventory-manageme-9e239.appspot.com",
+    messagingSenderId: "295391985353",
+    appId: "1:295391985353:web:590ce3489895d679685718",
+    measurementId: "G-9S0NR244MJ"
 });
 
 const firestore = getFirestore(firebaseApp);
@@ -43,7 +43,7 @@ function resetInput(){
 
   document.getElementById('name-input').value = "";
   document.getElementById('item-input').value = "";
-  document.getElementById('date-input').value = "";
+  document.getElementById('school-input').value = "";
   document.getElementById('remarks-input').value = "";
   document.getElementById('photo-input-url').value = "";
 }
@@ -63,9 +63,9 @@ function addToTable(data) {
       <td><span><button data-id="${data.id}" class="btn btn-primary edit-btn" style="margin:5px;"><i class="fa-solid fa-pen fa-lg" style="color: #ffffff;"></i></button><button data-id="${data.id}" class="btn btn-primary delete-btn" style="background-color:#d73200;"><i class="fa-regular fa-trash-can fa-lg" style="color: #ffffff;"></i></button></span></td>
       <td>${data.id}</td>
       <td>${data.name}</td>
+      <td>${data.schoolName}</td>
       <td>${data.item}<br>${itemPhotoHtml}</td>
-      <td>${data.dateBorrow}</td>
-      <td>${data.dateExpectedReturn}</td>
+      <td>${data.dateMissing}</td>
       <td>${data.dateReturn}</td>
       <td>${data.remarks}</td>
   `;
@@ -78,22 +78,22 @@ function addToTable(data) {
 
 //load the data from firestore to the table
 async function loadData() {
-  const dataRowsCollection = collection(firestore, 'dataRows');
-  const querySnapshot = await getDocs(dataRowsCollection);
+  const missingDataCollection = query(collection(firestore, 'missingData'), orderBy("id", "asc"));
+  const querySnapshot = await getDocs(missingDataCollection);
   
-  dataRows = [];
+  missingData = [];
   
   querySnapshot.forEach((doc) => {
       const data = doc.data();
       data.id = doc.id; 
-      dataRows.push(data);
+      missingData.push(data);
   });
   
-  currentId = dataRows.length ? parseInt(dataRows[dataRows.length - 1].id) + 1 : 1;
+  currentId = missingData.length ? parseInt(missingData[missingData.length - 1].id) + 1 : 1;
   
   const tableBody = document.getElementById('data-table-body');
   tableBody.innerHTML = '';
-  dataRows.forEach(data => addToTable(data));
+  missingData.forEach(data => addToTable(data));
 }
 
 //take photo
@@ -156,18 +156,18 @@ document.getElementById('comfirm-btn').addEventListener('click', async () => {
 });
 async function getInputData() {
   const name = document.getElementById('name-input').value;
+  const schoolName = document.getElementById('school-input').value;
   const item = document.getElementById('item-input').value;
   const itemPhoto = document.getElementById('photo-input-url').value;
-  const dateBorrow = getDate();
+  const dateMissing = getDate();
   const dateReturn = "";
-  const dateExpectedReturn = document.getElementById('date-input').value;
   const remarks = document.getElementById('remarks-input').value;
 
-  if (name && item && dateExpectedReturn) {
-      const data = { id: currentId, name, item, itemPhoto, dateBorrow, dateExpectedReturn, dateReturn, remarks };
-      const docRef = doc(firestore, 'dataRows', String(currentId));
+  if (name && item && schoolName) {
+      const data = { id: currentId, name, schoolName, item, itemPhoto, dateMissing, dateReturn, remarks };
+      const docRef = doc(firestore, 'missingData', String(currentId));
       await setDoc(docRef, data);
-      dataRows.push(data);
+      missingData.push(data);
       addToTable(data);
       currentId++;
       resetInput();
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 //return item's date
 async function returnData(id) {
-  const data = dataRows.find(data => String(data.id) === String(id));
+  const data = missingData.find(data => String(data.id) === String(id));
   if (!data) {
       console.error(`Data with id ${id} not found.`);
       return;
@@ -203,7 +203,7 @@ async function returnData(id) {
   data.dateReturn = getDate();
 
   // Update Firestore
-  const docRef = doc(firestore, 'dataRows', String(id));
+  const docRef = doc(firestore, 'missingData', String(id));
   await updateDoc(docRef, { dateReturn: data.dateReturn });
 
   const tableBody = document.getElementById('data-table-body');
@@ -219,24 +219,64 @@ async function returnData(id) {
 
 //delete current row data
 async function deleteData(id) {
-  const isConfirmed = confirm("Are you sure you want to delete this?");
-  if (isConfirmed) {
-      resetInput();
-      const index = dataRows.findIndex(data => String(data.id) === String(id));
-      if (index !== -1) { 
-            const docRef = doc(firestore, 'dataRows', String(id));
-            await deleteDoc(docRef);
-            dataRows.splice(index, 1);
-            const tableBody = document.getElementById('data-table-body');
-            tableBody.innerHTML = '';
-            dataRows.forEach(data => addToTable(data));
+  let modal = document.getElementById('passwordPromptModal');
+  let closeBtn = document.getElementById('closeBtn');
+  let confirmBtn = document.getElementById('confirmPasswordBtn');
+  const tableBody = document.getElementById('data-table-body');
+
+  // show modal
+  modal.style.display = 'block';
+
+  // close the modal
+  closeBtn.onclick = function() {
+      modal.style.display = 'none';
+  };
+
+  // validate the password
+  confirmBtn.onclick = async function() {
+      let password = document.getElementById('passwordInput').value;
+      if (password === '008989') {
+          let confirmation = confirm("Are you sure you want to delete this?");
+          if(confirmation){
+            try {
+                resetInput();
+                const index = missingData.findIndex(data => String(data.id) === String(id));
+                if (index !== -1) { 
+                        const docRef = doc(firestore, 'missingData', String(id));
+                        await deleteDoc(docRef);
+                        missingData.splice(index, 1);
+                        const tableBody = document.getElementById('data-table-body');
+                        tableBody.innerHTML = '';
+                        missingData.forEach(data => addToTable(data));
+                }
+
+                // Close the modal and reset the password field
+                document.getElementById('passwordInput').value = '';
+                modal.style.display = 'none';
+
+                alert("Data cleared successfully.");
+            } catch (error) {
+                console.error("Error clearing data:", error);
+                alert("An error occurred while clearing data. Please try again.");
+            }
+          }
+      } else {
+          // show error message
+          alert("Incorrect password. Please enter again.");
       }
-  }
+  };
+
+  // close the modal if the user clicks outside of it
+  window.onclick = function(event) {
+      if (event.target == modal) {
+          modal.style.display = 'none';
+      }
+  };
 }
 
 //edit current row data
 async function editData(id) {
-  const dataToEdit = dataRows.find(data => String(data.id) === String(id));
+  const dataToEdit = missingData.find(data => String(data.id) === String(id));
   if (!dataToEdit) {
       console.error(`Data with id ${id} not found.`);
       return;
@@ -264,28 +304,28 @@ async function editData(id) {
   }
 
   document.getElementById('name-input').value = dataToEdit.name;
+  document.getElementById('school-input').value = dataToEdit.schoolName;
   document.getElementById('item-input').value = dataToEdit.item;
   document.getElementById('photo-input-url').value = dataToEdit.itemPhoto;
-  document.getElementById('date-input').value = dataToEdit.dateExpectedReturn;
   document.getElementById('remarks-input').value = dataToEdit.remarks;
 
   document.getElementById('save-btn').onclick = async function() {
       const editedName = document.getElementById('name-input').value;
+      const editedSchoolName = document.getElementById('school-input').value;
       const editedItem = document.getElementById('item-input').value;
       const editedItemPhoto = document.getElementById('photo-input-url').value;
-      const editedDate = document.getElementById('date-input').value;
       const editedRemarks = document.getElementById('remarks-input').value;
 
       dataToEdit.name = editedName;
+      dataToEdit.schoolName = editedSchoolName;
       dataToEdit.item = editedItem;
       dataToEdit.itemPhoto = editedItemPhoto;
-      dataToEdit.dateExpectedReturn = editedDate;
       dataToEdit.remarks = editedRemarks;
 
       updateTableRow(dataToEdit);
       resetInput();
 
-      const docRef = doc(firestore, 'dataRows', String(id));
+      const docRef = doc(firestore, 'missingData', String(id));
       await updateDoc(docRef, dataToEdit);
 
       if (rowToHighlight) {
@@ -311,11 +351,11 @@ function updateTableRow(data) {
         
         if (String(rowId) === String(data.id)) {
             rows[i].getElementsByTagName('td')[2].textContent = data.name;
-            rows[i].getElementsByTagName('td')[3].innerHTML = `
+            rows[i].getElementsByTagName('td')[3].textContent = data.schoolName;
+            rows[i].getElementsByTagName('td')[4].innerHTML = `
                 ${data.item}<br>
                 <img src="${data.itemPhoto}" alt="Item Photo" width="200" height="200">
             `;
-            rows[i].getElementsByTagName('td')[5].textContent = data.dateExpectedReturn;
             rows[i].getElementsByTagName('td')[7].textContent = data.remarks;
             break;
         }
@@ -344,11 +384,11 @@ document.getElementById('clearBtn').addEventListener('click', function() {
           let confirmation = confirm("Are you sure you want to clear all data?");
           if(confirmation){
             try {
-              // Clear dataRows array
-              dataRows = [];
+              // Clear missingData array
+              missingData = [];
 
               // Clear all data from Firestore
-              const collectionRef = collection(firestore, 'dataRows');
+              const collectionRef = collection(firestore, 'missingData');
               const querySnapshot = await getDocs(collectionRef);
               
               querySnapshot.forEach(async (doc) => {
@@ -359,7 +399,7 @@ document.getElementById('clearBtn').addEventListener('click', function() {
               tableBody.innerHTML = '';
 
               // Clear local storage if you use it
-              localStorage.removeItem('dataRows');
+              localStorage.removeItem('missingData');
 
               // Close the modal and reset the password field
               document.getElementById('passwordInput').value = '';
@@ -388,14 +428,14 @@ document.getElementById('clearBtn').addEventListener('click', function() {
 // search
 document.getElementById('searchInput').addEventListener('input', function() {
   const searchValue = this.value.toLowerCase();
-  const filteredData = dataRows.filter(data => {
+  const filteredData = missingData.filter(data => {
       return (
           data.id.toString().toLowerCase().includes(searchValue) ||
           data.name.toLowerCase().includes(searchValue) ||
+          data.schoolName.toLowerCase().includes(searchValue) ||
           data.item.toLowerCase().includes(searchValue) ||
           data.dateReturn.toLowerCase().includes(searchValue) ||
-          (data.dateBorrow && data.dateBorrow.toLowerCase().includes(searchValue)) ||
-          (data.dateExpectedReturn && data.dateExpectedReturn.toLowerCase().includes(searchValue)) ||
+          (data.dateMissing && data.dateMissing.toLowerCase().includes(searchValue)) ||
           (data.dateReturn && data.dateReturn.toLowerCase().includes(searchValue)) ||
           (data.remarks && data.remarks.toLowerCase().includes(searchValue))
       );
@@ -409,7 +449,7 @@ document.getElementById('allUserBtn').addEventListener('click', function() {
   loadData()
 });
 document.getElementById('noReturnBtn').addEventListener('click', function() {
-  const filteredData = dataRows.filter(data => {
+  const filteredData = missingData.filter(data => {
       return (
           (data.dateReturn && data.dateReturn.toLowerCase().includes("button"))
       );
@@ -418,36 +458,13 @@ document.getElementById('noReturnBtn').addEventListener('click', function() {
   filteredData.forEach(data => addToTable(data));
 });
 document.getElementById('returnedBtn').addEventListener('click', function() {
-  const filteredData = dataRows.filter(data => {
+  const filteredData = missingData.filter(data => {
       return (
           !(data.dateReturn && data.dateReturn.toLowerCase().includes("button"))
       );
   });
   document.getElementById('data-table-body').innerHTML = '';
   filteredData.forEach(data => addToTable(data));
-});
-
-//export data to excel file
-document.getElementById('exportBtn').addEventListener('click', function(){
-  const headers = ["ID", "NAME", "ITEM", "DATEBORROW", "DATEEXPECTEDRETURN", "DATERETURN", "REMARKS"];
-
-  const modifiedDataRows = dataRows.map(row => {
-      return {
-          ID: row.id,
-          NAME: row.name,
-          ITEM: row.item,
-          DATEBORROW: row.dateBorrow,
-          DATEEXPECTEDRETURN: row.dateExpectedReturn,
-          DATERETURN: typeof row.dateReturn === 'string' && row.dateReturn.includes("button") ? "Not returned" : row.dateReturn,
-          REMARKS: row.remarks
-      };
-  });
-
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.json_to_sheet(modifiedDataRows, { header: headers });
-
-  XLSX.utils.book_append_sheet(wb, ws, "Data");
-  XLSX.writeFile(wb, "Robot_Inventory.xlsx");
 });
 
 window.onload = loadData;

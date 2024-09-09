@@ -33,15 +33,15 @@
         <!-- Content Start -->
         <div class="container-fluid p-4"> 
             <div class="d-flex align-items-center justify-content-between">
-                <a class="header-text" href="main.html" class="mb-0" style="text-decoration: underline;">Borrow/Return</a> 
-                <a class="header-text" href="main_missing.html" class="mb-0" style="text-decoration: none;">Missing</a> 
+                <a class="header-text" href="main.html" class="mb-0" style="text-decoration: none;">Borrow/Return</a> 
+                <a class="header-text" href="main_missing.html" class="mb-0" style="text-decoration: underline;">Missing</a> 
                 <a href="main.html"><img alt="company_logo" style="width: 6rem; height:5rem;" src="https://resources.wobbjobs.com/companies/dc12c743-0503-48f2-9de6-06e77afe86a4/company_logo/original/ff7831ca-f487-49fb-b42c-cdf8a3afa5ce-135022_125977760797969_1688052_o.jpg"></a>
             </div>
             <!-- Enter Info Start-->
             <div class="bg-light rounded align-items-left justify-content-left p-4">
                 <div class="col form-container">
                     <div class="mb-3">
-                        <label class="label-text">Name: </label>
+                        <label class="label-text">Teacher's Name: </label>
                         <input type="text" placeholder="Enter your name" class="input-box" id="name-input" required>
                     </div>
                     <div class="mb-3 d-flex align-items-center">
@@ -57,9 +57,13 @@
                     </div>
                     <img id="itemPhotoImg" scr="" alt="Item photo" class="mb-3 item-photo-img" style="display: none;">
                     <div class="mb-3">
-                        <label class="label-text">Date Return: </label>
-                        <input type="date" placeholder="Select the date" class="input-box" id="date-input" required>
+                        <label class="label-text">School's Name: </label>
+                        <input type="text" placeholder="Enter the school name" class="input-box" id="school-input" required>
                     </div>
+                    <!-- <div class="mb-3">
+                        <label class="label-text">Date Missing: </label>
+                        <input type="date" placeholder="Select the date" class="input-box" id="date-input" required>
+                    </div> -->
                     <div class="mb-3">
                         <label class="label-text">Remarks: </label> 
                         <input type="text" placeholder="Enter remarks" class="input-box" id="remarks-input">
@@ -89,7 +93,6 @@
                                 <a id="returnedBtn" class="dropdown-item">Returned</a>
                             </div>
                         </div>
-                        <button id="exportBtn" class="sort-button"><i class="fa-solid fa-file-arrow-down fa-xl" style="color: #443400"></i></button>    
                     </div>
 
                     <!-- Password Modal Start -->
@@ -115,9 +118,9 @@
                                 <th></th>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>School</th>
                                 <th>Item's Name</th>
-                                <th>Date Borrow</th>
-                                <th>Date Expected to Return</th>
+                                <th>Date Missing</th>
                                 <th>Date Return</th>
                                 <th>Remarks</th>
                             </tr>
@@ -136,7 +139,7 @@
         <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top" ><i class="bi bi-arrow-up"></i></a>
     </div>
 
-    <script type="module" src="js/main_firestore.js"></script>
+    <script type="module" src="js/missing_firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
