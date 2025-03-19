@@ -1,7 +1,13 @@
 :root {
+<<<<<<< HEAD
     --primary: #91e542;
     --light: #f3f3f3;
     --dark: #191a23;
+=======
+    --primary: #de810f;
+    --light: #F3F6F9;
+    --dark: #002439;
+>>>>>>> fbf48d22e556ec1293f3f177a0184b9c4689c44e
     --font: Montserrat;
 }
 
@@ -40,7 +46,10 @@
     border: none;
     background-color: var(--primary);
     color: var(--light);
+<<<<<<< HEAD
     font-weight: 800;
+=======
+>>>>>>> fbf48d22e556ec1293f3f177a0184b9c4689c44e
 }.btn.btn-primary:hover {
     opacity: 0.7;
 }
@@ -128,6 +137,7 @@
 }
 
 .sidebar{
+<<<<<<< HEAD
     background-color: var(--primary);
     color: var(--primary);
 }
@@ -135,6 +145,15 @@
 .navbar{
     background-color: var(--primary);
     color: var(--primary);
+=======
+    background-color: #de810f;
+    color: #de810f;
+}
+
+.navbar{
+    background-color: #de810f;
+    color: #de810f;
+>>>>>>> fbf48d22e556ec1293f3f177a0184b9c4689c44e
 }
 
 /*** Navbar ***/

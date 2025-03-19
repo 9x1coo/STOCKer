@@ -103,4 +103,3 @@ if (window.location.pathname.includes("main.html")) {
 // document.getElementById("login-start-btn").addEventListener("click", function() {
 //     loadContent("login.html");
 // });
-
