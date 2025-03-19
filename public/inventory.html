@@ -1,0 +1,150 @@
+<!-- Enter Info Start-->
+<div id="dynamic-content">
+    <div class="align-items-left justify-content-left p-4">
+        <div class="col form-container">
+            <!-- Name Input with Photo Upload -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-md-4 col-form-label label-text">Name:</label>
+                <div class="col-md-8 d-flex align-items-center">
+                    <input type="text" placeholder="Enter the name" class="input-box flex-grow-1" id="item-input" required>
+                    <input type="text" id="photo-input-url" style="display: none;"> <!-- Store Data Url-->
+                    <input type="file" id="take-photo-input" accept="image/*" capture="environment" style="display: none;">
+                    <button class="btn btn-primary ms-2" id="photo-btn"><i class="fa-solid fa-camera"></i></button>
+                </div>
+            </div>
+        
+            <!-- Display Item Photo -->
+            <div class="mb-3 row" style="display: none;"> <!-- //////////////////////////// -->
+                <div class="col-md-4"></div>
+                <div class="col-md-8">
+                    <img id="itemPhotoImg" src="" alt="Item photo" class="item-photo-img img-fluid">
+                </div>
+            </div>
+        
+            <!-- Price Input -->
+            <div class="mb-3 row">
+                <label class="col-md-4 col-form-label label-text">Price:</label> 
+                <div class="col-md-8">
+                    <input type="text" placeholder="Enter item price" class="input-box" id="price-input" required>
+                </div>
+            </div>
+        
+            <!-- Quantity Input -->
+            <div class="mb-3 row">
+                <label class="col-md-4 col-form-label label-text">Quantity:</label>
+                <div class="col-md-8">
+                    <input type="number" min="1" placeholder="Enter item quantity" class="input-box" id="quantity-input" required>
+                </div>
+            </div>
+        
+            <!-- Description Input -->
+            <div class="mb-3 row">
+                <label class="col-md-4 col-form-label label-text">Description:</label>
+                <div class="col-md-8">
+                    <input type="text" placeholder="Enter description" class="input-box" id="description-input">
+                </div>
+            </div>
+        
+            <!-- Supplier Selection -->
+            <div class="mb-3 row">
+                <label class="col-md-4 col-form-label label-text">Supplier:</label>
+                <div class="col-md-8">
+                    <div class="btn-group w-100">
+                        <button type="button" class="btn btn-success dropdown-toggle w-100" data-bs-toggle="dropdown">
+                            Select Supplier
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item">Supplier 1</a>
+                            <a class="dropdown-item">Supplier 2</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" id="add-new-supplier">+ Add New Supplier</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Stock Alert Inputs -->
+            <div class="mb-3 row">
+                <label class="col-md-4 col-form-label label-text">Alert Low Stock:</label>
+                <div class="col-md-8">
+                    <input type="number" min="0" placeholder="Enter item quantity" class="input-box" id="low-stock-input" required>
+                </div>
+            </div>
+        
+            <div class="mb-3 row">
+                <label class="col-md-4 col-form-label label-text">Alert Over Stock:</label>
+                <div class="col-md-8">
+                    <input type="number" min="0" placeholder="Enter item quantity" class="input-box" id="over-stock-input" required>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" id="comfirm-btn">Confirm</button>
+        <div class="btn-container">
+            <button id="save-btn" class="btn btn-primary" style="display: none;">Save</button>
+            <button id="cancel-btn" class="cancel-btn" style="display: none;">Cancel</button>
+        </div>
+    </div>
+    <!-- Enter Info Start-->
+
+    <div class="bg-light text-center rounded p-4">
+        <!-- Search and Filter Start-->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+                <div class="search-container">
+                    <input type="text" name="search" placeholder="Enter any details" class="searchinput" id="searchInput">
+                    <i class="fa-solid fa-magnifying-glass fa-xl search-icon"></i>
+                </div>
+                <div class="dropdown-sort"> 
+                    <i disabled data-bs-toggle="dropdown" class="fa-solid fa-arrow-down-short-wide fa-xl sort-button"></i>
+                    <div class="dropdown-menu dropdown-menu-end border-0">
+                        <a id="allUserBtn" class="dropdown-item">All</a>
+                        <a id="returnedBtn" class="dropdown-item">Normal Stock</a>
+                        <a id="noReturnBtn" class="dropdown-item">Low Stock</a>
+                        <a id="returnedBtn" class="dropdown-item">High Stock</a>
+                    </div>
+                </div>
+                <button id="exportBtn" class="sort-button"><i class="fa-solid fa-file-arrow-down fa-xl"></i></button>    
+            </div>
+
+            <!-- Supplier Modal Start -->
+            <div id="supplierPromptModal" class="supplierModal"> 
+                <div class="supplierModalContent">
+                    <span class="close" id="closeBtn">&times;</span>
+                    <label class="header-text m-5">New Supplier</label>
+                    <div class="m-3 row align-items-center">
+                        <label class="mb-1 label-text">Supplier Name:</label>
+                        <input type="email" placeholder="Enter supplier name" class="input-box" id="supplier-name-input" required>
+                    </div>
+                    <div class="m-3 row align-items-center">
+                        <label class="mb-1 label-text">Supplier Contact:</label> 
+                        <input type="password" placeholder="Enter supplier contact" class="input-box" id="supplier-contact-input" required>
+                    </div>
+                    <button class="btn btn-primary" id="confirmSupplierBtn">Comfirm</button>
+                </div>
+            </div>
+            <!-- Supplier Modal End -->
+        </div>
+        <!-- Search and Filter End-->
+
+        <!-- Table Start-->
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Description</th>
+                        <th>Supplier Name</th>
+                        <th>Supplier Contact</th>
+                        <th>Date Updated</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body"></tbody>
+            </table>
+        </div>
+        <!-- Table End-->
+</div>

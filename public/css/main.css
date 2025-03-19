@@ -1,0 +1,264 @@
+.main-container{
+  background-color:white; 
+  font-family: "Space Grotesk";
+}
+
+.table-container {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  height: 500px;
+  max-width: 60rem;
+  height: 32rem;
+  overflow-y: auto; 
+}
+
+.data-table {
+  width: 100%; 
+  border-collapse: collapse; 
+}
+
+.data-table th,
+.data-table td {
+  padding: 8px; 
+  border: 1px solid transparent; 
+  text-align: left; 
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.data-table th {
+  color: #ffffff;
+  position: sticky; 
+  top: 0; 
+  background-color: var(--dark);
+}
+
+.data-table tbody tr {
+  background-color: white;
+}
+
+.data-table tbody tr:hover {
+  background-color: #677e8a17;
+}
+
+.data-table th:nth-child(0),
+.data-table td:nth-child(0),
+.data-table th:nth-child(2),
+.data-table td:nth-child(2),
+.data-table th:nth-child(3),
+.data-table td:nth-child(3),
+.data-table th:nth-child(4),
+.data-table td:nth-child(4),
+.data-table th:nth-child(5),
+.data-table td:nth-child(5),
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+    min-width: 150px; 
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2),
+.data-table th:nth-child(3),
+.data-table td:nth-child(3),
+.data-table th:nth-child(7),
+.data-table td:nth-child(7) {
+    max-width: 350px; 
+}
+
+.data-table th:nth-child(0),
+.data-table td:nth-child(0),
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+    text-align: center;
+}
+
+.search-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-container {
+    background-color: white;
+    display: flex; 
+    align-items: center;
+    border-radius: 20px;
+    padding: 5px 10px;
+    border-width: thin;
+    border-color: #b7b7b7;
+    box-shadow: 0 0.7rem 0.4rem rgba(168, 163, 163, 0.25);
+    height: 2.67rem;
+    width: 28.9rem;
+    padding-left: 20px;
+    margin-right: 20px;
+}
+
+@media (max-width: 800px) {
+  .search-container {
+      width: 20rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .search-container {
+      width: 12rem; 
+  }
+} 
+
+.searchinput {
+    border: none;
+    outline: none;
+    width: 100%; 
+}
+
+.search-icon{
+  color: var(--primary);
+  margin-right: 5px;
+}
+
+.sort-button{
+  background-color: transparent;
+  color: var(--dark);
+  border: none; 
+  padding: 0; 
+  cursor: pointer;
+  margin-right: 20px;
+}
+.sort-button:hover{opacity: 0.7;}
+
+.dropdown-sort{
+  cursor: pointer;
+}
+.dropdown-sort:hover .dropdown-menu {cursor: pointer;display: block;}
+
+.message-prompt {
+  color: #788800;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.form-container{
+  display: flex;
+  flex-direction: column;
+}
+
+.input-box {
+  flex: 1;
+  width: 100%; 
+  height: 2.5rem;
+  border: 1.5px solid var(--primary);
+  box-shadow: none;
+  outline: none; 
+  border-radius: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  outline: none;
+}
+
+.input-box-item {
+  width: 100%;
+  height: 2rem;
+  border: none;
+  box-shadow: 0 0.7rem 0.4rem rgba(168, 163, 163, 0.384);
+  border-radius: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  outline: none;
+}
+
+.btn-container{
+  display: flex;
+}
+
+.item-container{
+  max-width: 60%;
+}
+
+.item-photo-img{
+  width: 120px;
+  height: 120px;
+}
+
+.supplierModal {
+display: none; 
+position: fixed;
+z-index: 1000; 
+left: 0;
+top: 0;
+width: 100%; 
+height: 100%; 
+overflow: auto; 
+background-color: rgba(0,0,0,0.4); 
+}
+
+.supplierModalContent {
+background-color: #fefefe;
+margin: 15% auto; 
+padding: 20px;
+border-radius: 20px;
+width: 60%; 
+}
+
+/* .password-input-box {
+width: 30%;
+height: 36px;
+border-color: black;
+border-width: 1px; 
+border-radius: 20px;
+padding-left: 20px;
+padding-right: 20px;
+outline: none;
+margin-right: 1rem;
+} */
+
+.close {
+color: #aaa;
+float: right;
+font-size: 28px;
+font-weight: bold;
+margin-top: -15px;
+}
+
+.close:hover,
+.close:focus {
+color: black;
+text-decoration: none;
+cursor: pointer;
+}
+
+.responsive-img {
+  width: 100%; 
+  transition: all 0.5s ease;
+}
+
+.login-btn{
+  background-color: transparent;
+  color: var(--primary);
+  border: none; 
+  transition: .5s;
+  font-size: 1rem;
+  font-weight: 800;
+}.login-btn:hover{
+  opacity: 70%;
+}
+
+.header-text{
+  color: var(--dark);
+  font-weight: bold;
+  font-size: 3rem;
+  text-align: left;
+}
+
+.label-text{
+  text-align: left;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .responsive-img {
+      width: 80%;
+  }
+  .header-text{ 
+    font-size: 2rem;
+  }
+} 
