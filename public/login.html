@@ -4,15 +4,16 @@
         <label class="header-text m-5">Login</label>
         <div class="mb-3 row align-items-center">
             <label class="mb-1 label-text">Email:</label>
-            <input type="email" placeholder="Enter your email" class="input-box" id="email-input" required>
+            <input type="email" placeholder="abc@example.com" class="input-box" id="login-email-input" required>
         </div>
         <div class="mb-3 row align-items-center">
             <label class="mb-1 label-text">Password:</label> 
-            <input type="password" placeholder="Enter your password" class="input-box" id="password-input" required>
+            <input type="password" placeholder="Enter your password" class="input-box" id="login-password-input" required>
+            <label class="error-prompt" id="error-message" style="display: none;">Incorrect email or password.</label>
         </div>                 
         <div class="mt-5">
             <button class="login-btn" id="signup-btn">Sign Up</button>
-            <button class="btn btn-primary" id="comfirm-login-btn">Comfirm</button>
+            <button class="btn btn-primary" id="login-comfirm-btn">Comfirm</button>
         </div>
     </div>
 </div>

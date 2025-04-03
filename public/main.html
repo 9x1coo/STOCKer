@@ -36,6 +36,7 @@
             <!-- Header Start-->
             <div class="d-flex align-items-center justify-content-between">
                 <a href="main.html"><img alt="company_logo" style="height:5rem;" src="image/STOCKer_logo.png"></a>
+                <button class="login-btn" id="logout-btn" style="display: none;">Logout</button> 
                 <button class="login-btn" id="login-btn">Login</button>
             </div>
             <!-- Header End-->
@@ -48,6 +49,7 @@
     </div>
 
     <script type="module" src="js/main_firestore.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
@@ -67,6 +69,6 @@
     
 
     <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

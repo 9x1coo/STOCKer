@@ -137,6 +137,13 @@
   font-weight: 500;
 }
 
+.error-prompt {
+  color: #ed2b2b;
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-align: left;
+}
+
 .form-container{
   display: flex;
   flex-direction: column;

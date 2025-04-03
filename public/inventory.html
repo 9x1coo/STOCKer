@@ -30,12 +30,22 @@
             </div>
         
             <!-- Quantity Input -->
-            <div class="mb-3 row">
-                <label class="col-md-4 col-form-label label-text">Quantity:</label>
-                <div class="col-md-8">
-                    <input type="number" min="0" placeholder="Enter item quantity" class="input-box" id="quantity-input" required>
+            <div class="mb-3 row align-items-center">
+                <label class="col-md-4 col-form-label label-text">Quantity:</label> 
+                <div class="col d-flex align-items-center">
+                    <input type="number" min="0" placeholder="Enter item quantity" class="input-box flex-grow-1 me-2" id="quantity-input" required>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                            Select Unit
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item">Packet</a>
+                            <a class="dropdown-item">Box</a>
+                        </div>
+                    </div>
                 </div>
             </div>
+            
         
             <!-- Description Input -->
             <div class="mb-3 row">
@@ -134,16 +144,34 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
-                        <th>Price</th>
+                        <th>Price (RM)</th>
                         <th>Quantity</th>
-                        <th>Description</th>
+                        <th>Barcode</th>
                         <th>Supplier Name</th>
                         <th>Supplier Contact</th>
                         <th>Date Updated</th>
+                        <th>Description</th>
+                        <th>Max Alert</th>
+                        <th>Min Alert</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="data-table-body"></tbody>
+                <tbody id="data-table-body">
+                    <tr>
+                        <td>0</td>
+                        <td>Apple</td>
+                        <td>2.00</td>
+                        <td>214</td>
+                        <td>120130143292</td>
+                        <td>Fruits SDN. BHD.</td>
+                        <td>012-3456789</td>
+                        <td>20-3-2025</td>
+                        <td></td>
+                        <td>300</td>
+                        <td>50</td>
+                        <td></td>
+                    </tr>
+                </tbody>
             </table>
         </div>
         <!-- Table End-->
