@@ -184,6 +184,7 @@
 .item-photo-img{
   width: 120px;
   height: 120px;
+  margin-left: auto;
 }
 
 .supplierModal {

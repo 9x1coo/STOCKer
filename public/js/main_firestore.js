@@ -17,8 +17,6 @@ const firebaseApp = initializeApp({
 const firestore = getFirestore(firebaseApp);
 
 
-
-
 //get the current date time
 function getDate(){
     const now = new Date();
