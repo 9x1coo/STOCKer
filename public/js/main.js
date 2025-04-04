@@ -25,8 +25,10 @@ onAuthStateChanged(auth, (user) => {
         currentUser = user.email;
         document.getElementById('logout-btn').style.display = "block";
         document.getElementById('login-btn').style.display = "none";
-        loadContent('inventory.html');
-        loadData()
+
+        loadContent('inventory.html', () => {
+            loadData();
+        }); 
     } else {
         console.log("No user is logged in.");
         loadContent('home.html');
@@ -68,7 +70,6 @@ async function checkUserLogin() {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         loadContent('inventory.html');
-        loadData()
     } catch (error) {
         document.getElementById('error-message').style.display = "block";
     }
@@ -169,16 +170,19 @@ function addToTable(data) {
         <td>${data.index}</td>
         <td>${data.name}<br>${itemPhotoHtml}</td>
         <td>${data.price}</td>
-        <td>${data.quanitty}</td>
+        <td>${data.quantity}</td> 
         <td>${data.barcode}</td>
-        <td>${data.supplierName}</td>
+        <td>${data.supplier}</td>
         <td>${data.supplierContact}</td>
         <td>${data.dateUpdate}</td>
+        <td>${data.userUpdate}</td>
         <td>${data.description}</td>
-        <td>${data.max}</td>
         <td>${data.min}</td>
+        <td>${data.max}</td>
         <td><span><button data-id="${data.id}" class="btn btn-primary edit-btn" style="margin:5px;"><i class="fa-solid fa-pen fa-lg" style="color: #ffffff;"></i></button><button data-id="${data.id}" class="btn btn-primary delete-btn" style="background-color:#d73200;"><i class="fa-regular fa-trash-can fa-lg" style="color: #ffffff;"></i></button></span></td>
     `;
+
+    console.log("Rows added!!");
     if (tableBody.firstChild) {
         tableBody.insertBefore(newRow, tableBody.firstChild);
     } else {
@@ -188,24 +192,19 @@ function addToTable(data) {
 
 //load the data from firestore to the table
 async function loadData() {
-    const dataRowsCollection = query(collection(firestore, 'Inventory'), orderBy("id", "asc"));
+    const dataRowsCollection = query(collection(firestore, 'Inventory'));
     const querySnapshot = await getDocs(dataRowsCollection);
-    
-    let dataRows = []; // Temporary array to store data  
-    let index = 1;
 
+    const tableBody = document.getElementById('data-table-body');
+    tableBody.innerHTML = '';
+
+    let index = 1;
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         data.index = index++;
         data.id = doc.id;
-        dataRows.push(data);
+        addToTable(data);
     });
-    
-    // currentId = dataRows.length ? parseInt(dataRows[dataRows.length - 1].id) + 1 : 1;
-    
-    const tableBody = document.getElementById('data-table-body');
-    tableBody.innerHTML = '';
-    dataRows.forEach(data => addToTable(data));
 }
 
 //take photo
@@ -264,34 +263,34 @@ function handlePhotoSelection(event) {
 
 //get data from input
 async function getInputData() {
-  const name = document.getElementById('item-input').value;
-  const itemPhoto = document.getElementById('photo-input-url').value;
-  const price = document.getElementById('price-input').value;
-  const quantity = document.getElementById('quantity-input').value +" "+ document.getElementById('unit-input').value;
-  const barcode = document.getElementById('barcode-input').value;
-  const supplier = document.getElementById('supplier-input').value;
-  const dateUpdate = getDate();
-  const userUpdate = currentUser;
-  const description = document.getElementById('description-input').value;
-  const min = document.getElementById('low-stock-input').value;
-  const max = document.getElementById('over-stock-input').value;
+    const name = document.getElementById('item-input').value;
+    const itemPhoto = document.getElementById('photo-input-url').value;
+    const price = document.getElementById('price-input').value;
+    const quantity = document.getElementById('quantity-input').value +" "+ document.getElementById('unit-input').textContent + "(s)";
+    const barcode = document.getElementById('barcode-input').value;
+    const supplier = document.getElementById('supplier-input').textContent;
+    const dateUpdate = getDate();
+    const userUpdate = currentUser;
+    const description = document.getElementById('description-input').value;
+    const min = document.getElementById('low-stock-input').value;
+    const max = document.getElementById('over-stock-input').value;
 
-  if (name && item && dateExpectedReturn) {
-    try {
-        const data = { name, itemPhoto, price, quantity, barcode, description, supplier, dateUpdate, userUpdate, min, max };
-        const docRef = await addDoc(collection(firestore, 'Inventory'), data);
-        data.id = docRef.id; 
+    if (name && price && quantity) {
+        try {
+            const data = { name, itemPhoto, price, quantity, barcode, description, supplier, dateUpdate, userUpdate, min, max };
+            const docRef = await addDoc(collection(firestore, 'Inventory'), data);
+            data.id = docRef.id; 
 
-        // Update UI
-        dataRows.push(data);
-        addToTable(data);
-        resetInput();
-    } catch (error) {
-        console.error("Error adding document: ", error);
+            // Update UI
+            dataRows.push(data);
+            addToTable(data);
+            // resetInput();
+        } catch (error) {
+            console.error("Error adding document: ", error);
+        }
+    } else {
+        alert('Please fill out all required fields.');
     }
-  } else {
-      alert('Please fill out all required fields.');
-  }
 }
 
 //===================================================//
@@ -299,19 +298,27 @@ async function getInputData() {
 //===================================================//
 
 
+// rules_version = '2';
 
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     match /{document=**} {
+//       allow read, write: if true;
+//     }
+//   }
+// }
 
 
 // window.addEventListener("load", function() {
 //     checkUserAuth();
 // });
 
-function loadContent(page) {
+function loadContent(page, callback) {
     fetch(page)
         .then(response => response.text())
         .then(data => {
             document.getElementById('dynamic-content').innerHTML = data;
-             
+
             // Load login page
             document.getElementById("login-btn")?.addEventListener("click", function() {
                 loadContent("login.html");
@@ -391,6 +398,11 @@ function loadContent(page) {
                     modal.style.display = 'none';
                 }
             };
+
+            if (typeof callback === 'function') {
+                callback();
+            }
+
         })
         .catch(error => console.error('Error loading content:', error));
 }

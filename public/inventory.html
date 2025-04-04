@@ -28,7 +28,7 @@
             <div class="mb-3 row align-items-center">
                 <label class="col-md-4 col-form-label label-text">Quantity:</label> 
                 <div class="col d-flex align-items-center">
-                    <input type="number" min="0" placeholder="Enter item quantity" class="input-box flex-grow-1 me-2" id="quantity-input" required>
+                    <input type="number" min="0" value ="0" placeholder="Enter item quantity" class="input-box flex-grow-1 me-2" id="quantity-input" required>
                     <div class="btn-group">
                         <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" id="unit-input">
                             Select Unit
@@ -58,7 +58,7 @@
             <div class="mb-3 row">
                 <label class="col-md-4 col-form-label label-text">Barcode:</label>
                 <div class="col-md-8">
-                    <input type="text" placeholder="Enter description" class="input-box" id="barcode-input">
+                    <input type="text" placeholder="Enter barcode" class="input-box" id="barcode-input">
                 </div>
             </div>
         
@@ -92,14 +92,14 @@
             <div class="mb-3 row">
                 <label class="col-md-4 col-form-label label-text">Alert Low Stock:</label>
                 <div class="col-md-8">
-                    <input type="number" min="0" placeholder="Enter item quantity" class="input-box" id="low-stock-input" required>
+                    <input type="number" min="0" value ="0" placeholder="Enter item quantity" class="input-box" id="low-stock-input" required>
                 </div>
             </div>
         
             <div class="mb-3 row">
                 <label class="col-md-4 col-form-label label-text">Alert Over Stock:</label>
                 <div class="col-md-8">
-                    <input type="number" min="0" placeholder="Enter item quantity" class="input-box" id="over-stock-input" required>
+                    <input type="number" min="0" value ="0" placeholder="Enter item quantity" class="input-box" id="over-stock-input" required>
                 </div>
             </div>
         </div>
@@ -167,28 +167,12 @@
                         <th>Date Updated</th>
                         <th>Updated By</th>
                         <th>Description</th>
-                        <th>Max Alert</th>
                         <th>Min Alert</th>
+                        <th>Max Alert</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="data-table-body">
-                    <tr>
-                        <td>0</td>
-                        <td>Apple</td>
-                        <td>2.00</td>
-                        <td>214</td>
-                        <td>120130143292</td>
-                        <td>Fruits SDN. BHD.</td>
-                        <td>012-3456789</td>
-                        <td>20-3-2025</td>
-                        <td>Loi</td>
-                        <td></td>
-                        <td>300</td>
-                        <td>50</td>
-                        <td></td>
-                    </tr>
-                </tbody>
+                <tbody id="data-table-body"></tbody>
             </table>
         </div>
         <!-- Table End-->
