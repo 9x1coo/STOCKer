@@ -1,10 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {query, getFirestore, doc, addDoc, setDoc, collection, getDocs, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {query, serverTimestamp, getFirestore, doc, addDoc, setDoc, collection, getDocs, getDoc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// let currentUserId = 1;
-let dataRows = [];
 let currentUser = "";
+let currentSortOrder = 'desc';
 
 const firebaseApp = initializeApp({
     apiKey: "AIzaSyA7TsXEByLxZLuPga32MlbBzI92zSXpelY",
@@ -27,6 +26,7 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('login-btn').style.display = "none";
 
         loadContent('inventory.html', () => {
+            loadSuppliers();
             loadData();
         }); 
     } else {
@@ -73,7 +73,7 @@ async function checkUserLogin() {
     } catch (error) {
         document.getElementById('error-message').style.display = "block";
     }
-}
+} 
 
 // Signup Function with Firebase Authentication
 async function getSignupInputData() {
@@ -97,7 +97,7 @@ async function getSignupInputData() {
     if (password.length < minLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
         document.getElementById('error-password').style.display = "block";
         console.log("Password validation failed!");
-    } else {
+    } else { 
         document.getElementById('error-password').style.display = "none";
 
         try {
@@ -127,20 +127,6 @@ async function getSignupInputData() {
 //===================================================//
 //===============Inventory Code Start================//
 //===================================================//
-//clear the input
-function resetInput(){
-    document.getElementById('comfirm-btn').style.display = 'block';
-    document.getElementById('save-btn').style.display = 'none';
-    document.getElementById('cancel-btn').style.display = 'none';
-    document.getElementById('itemPhotoImg').style.display = 'none';
-  
-    document.getElementById('name-input').value = "";
-    document.getElementById('item-input').value = "";
-    document.getElementById('date-input').value = "";
-    document.getElementById('remarks-input').value = "";
-    document.getElementById('photo-input-url').value = "";
-}
-
 //get the current date time
 function getDate(){
     const now = new Date();
@@ -159,6 +145,20 @@ function getDate(){
     return formattedDateTime;
 }
 
+//clear the input
+function resetInput(){
+    document.getElementById('comfirm-btn').style.display = 'block';
+    document.getElementById('save-btn').style.display = 'none';
+    document.getElementById('cancel-btn').style.display = 'none';
+    document.getElementById('itemPhotoImg').style.display = 'none';
+  
+    document.getElementById('name-input').value = "";
+    document.getElementById('item-input').value = "";
+    document.getElementById('date-input').value = "";
+    document.getElementById('remarks-input').value = "";
+    document.getElementById('photo-input-url').value = "";
+}
+
 //display the data in the table
 function addToTable(data) {
     const tableBody = document.getElementById('data-table-body');
@@ -166,13 +166,19 @@ function addToTable(data) {
 
     const itemPhotoHtml = data.itemPhoto ? `<img src="${data.itemPhoto}" alt="Item Photo" width="200" height="200">` : '';
 
+    if (data.quantity < data.min) {
+        newRow.style.backgroundColor = '#fff3cd';
+    } else if (data.quantity > data.max) {
+        newRow.style.backgroundColor = '#f8d7da';
+    }
+
     newRow.innerHTML = `
         <td>${data.index}</td>
         <td>${data.name}<br>${itemPhotoHtml}</td>
         <td>${data.price}</td>
         <td>${data.quantity}</td> 
         <td>${data.barcode}</td>
-        <td>${data.supplier}</td>
+        <td>${data.supplierName}</td>
         <td>${data.supplierContact}</td>
         <td>${data.dateUpdate}</td>
         <td>${data.userUpdate}</td>
@@ -183,28 +189,47 @@ function addToTable(data) {
     `;
 
     console.log("Rows added!!");
-    if (tableBody.firstChild) {
-        tableBody.insertBefore(newRow, tableBody.firstChild);
-    } else {
-        tableBody.appendChild(newRow);
-    }
+    tableBody.appendChild(newRow);
 }
 
 //load the data from firestore to the table
 async function loadData() {
-    const dataRowsCollection = query(collection(firestore, 'Inventory'));
+    const dataRowsCollection = query(collection(firestore, 'Inventory'), orderBy("dateAdded", currentSortOrder));
     const querySnapshot = await getDocs(dataRowsCollection);
 
     const tableBody = document.getElementById('data-table-body');
     tableBody.innerHTML = '';
 
     let index = 1;
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
+    let count = 0;
+
+    for (const docs of querySnapshot.docs) {
+        const data = docs.data();
         data.index = index++;
-        data.id = doc.id;
+        data.id = docs.id;
+
+        const supplierDocRef = doc(firestore, 'Supplier', data.supplier);
+        const supplierDoc = await getDoc(supplierDocRef);
+        const supplier = supplierDoc.exists() ? supplierDoc.data() : null;
+
+        if (data.quantity < data.min || data.quantity > data.max) count++;
+
+        if (supplier) {
+            data.supplierName = supplier.name;
+            data.supplierContact = supplier.contact;
+        } else {
+            data.supplierName = "Unknown";
+            data.supplierContact = "N/A";
+        }
+
         addToTable(data);
-    });
+    }
+
+    if (count > 0) {
+        document.getElementById('noti-count').innerText = count;
+        document.getElementById('notiPromptModal').style.display = 'block';
+        console.log("Show noti");
+    }
 }
 
 //take photo
@@ -248,7 +273,7 @@ function handlePhotoSelection(event) {
                 console.log("got image!");
 
                 // Compress the image
-                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.5); 
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.2);
 
                 const camera = document.getElementById('itemPhotoImg');
                 camera.src = compressedDataUrl;
@@ -268,22 +293,25 @@ async function getInputData() {
     const price = document.getElementById('price-input').value;
     const quantity = document.getElementById('quantity-input').value +" "+ document.getElementById('unit-input').textContent + "(s)";
     const barcode = document.getElementById('barcode-input').value;
-    const supplier = document.getElementById('supplier-input').textContent;
+    const supplier = document.getElementById('supplier-input-id').value;
     const dateUpdate = getDate();
     const userUpdate = currentUser;
     const description = document.getElementById('description-input').value;
     const min = document.getElementById('low-stock-input').value;
     const max = document.getElementById('over-stock-input').value;
+    const dateAdded = serverTimestamp();
 
-    if (name && price && quantity) {
+    if (parseInt(min) >= parseInt(max)){
+        alert('Low stock\'s alert should not be more than over stock.');
+    } else if (name.trim() && price.trim() && quantity.trim() && (parseInt(min) < parseInt(max)) && !quantity.includes("Select") && !supplier.includes("Select")) { 
         try {
-            const data = { name, itemPhoto, price, quantity, barcode, description, supplier, dateUpdate, userUpdate, min, max };
+            const data = { name, itemPhoto, price, quantity, barcode, description, supplier, dateUpdate, userUpdate, min, max, dateAdded };
             const docRef = await addDoc(collection(firestore, 'Inventory'), data);
             data.id = docRef.id; 
 
             // Update UI
-            dataRows.push(data);
-            addToTable(data);
+            console.log("Data added");
+            loadData(); 
             // resetInput();
         } catch (error) {
             console.error("Error adding document: ", error);
@@ -293,20 +321,118 @@ async function getInputData() {
     }
 }
 
+// Load supplier to list
+async function loadSuppliers() {
+    const dropdownMenu = document.getElementById('supplier-dropdown-menu');
+    dropdownMenu.innerHTML = '';
+
+    try {
+        const querySnapshot = await getDocs(collection(firestore, 'Supplier'));
+        console.log("Supplierrrr");
+
+        if (querySnapshot.empty) {
+            const defaultData = { name: 'Unknown Supplier', contact: 'N/A' };
+            const docRef = await addDoc(collection(firestore, 'Supplier'), defaultData);
+            console.log('Default supplier added:', docRef.id);
+            return;
+        }
+
+        querySnapshot.forEach(doc => {
+            const data = doc.data();
+
+            const supplierItem = document.createElement('a');
+            supplierItem.className = 'dropdown-item d-flex justify-content-between align-items-center';
+            supplierItem.innerHTML = `
+                <span>${data.name}</span>
+                <button data-id="${doc.id}" class="cancel-btn btn btn-sm btn-danger ms-2">-</button>
+            `;
+            supplierItem.addEventListener('click', function (e) {
+                if (e.target.classList.contains('cancel-btn')){
+                    deleteSupplier(doc.id);
+                    document.getElementById('supplier-input').disabled = true;
+                } 
+                document.getElementById('supplier-input').textContent = data.name;
+                document.getElementById('supplier-input-id').value = doc.id;
+            });
+
+            dropdownMenu.appendChild(supplierItem);
+        });
+
+        const divider = document.createElement('div');
+        divider.className = 'dropdown-divider';
+        const addNew = document.createElement('a');
+        addNew.className = 'dropdown-item';
+        addNew.id = 'add-new-supplier';
+        addNew.textContent = '+ Add New Supplier';
+        dropdownMenu.appendChild(divider);
+        dropdownMenu.appendChild(addNew);
+
+        addNew.addEventListener("click", function () {
+            document.getElementById('supplierPromptModal').style.display = 'block';
+        });
+
+    } catch (error) {
+        console.error("Error loading suppliers: ", error);
+    }
+}
+
+// Delete Supplier
+async function deleteSupplier(id) {
+    if (confirm('Are you sure you want to delete this supplier?')) {
+        try {
+            await deleteDoc(doc(firestore, 'Supplier', id));
+            await loadSuppliers();
+            document.getElementById('supplier-input').textContent = "Select Supplier";
+            document.getElementById('supplier-input-id').value = "";
+            console.log("deleteeeee");
+            document.getElementById('supplier-input').disabled = false;
+        } catch (error) {
+            console.error("Error deleting supplier: ", error);
+        }
+    }
+}
+
+// Supplier get input
+async function getSupplierData() {
+    const name = document.getElementById('supplier-name-input').value;
+    const contact = document.getElementById('supplier-contact-input').value;
+
+    if (name && contact) { 
+        try {
+            document.getElementById('supplierPromptModal').style.display = 'none';
+            document.getElementById('supplier-name-input').value = "";
+            document.getElementById('supplier-contact-input').value = "";
+            document.getElementById('supplier-input').disabled = true;
+
+            const data = { name, contact };
+            const docRef = await addDoc(collection(firestore, 'Supplier'), data);
+            data.id = docRef.id; 
+
+            await loadSuppliers();
+            document.getElementById('supplier-input').disabled = false;
+        } catch (error) {
+            console.error("Error adding supplier: ", error);
+        }
+    } else {
+        alert('Please fill out all required fields.');
+    }
+}
+
+// search 
+function searchTable() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const table = document.getElementById('data-table-body');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const rowText = rows[i].textContent.toLowerCase();
+        rows[i].style.display = rowText.includes(input) ? '' : 'none';
+    }
+}
 //===================================================//
 //================Inventory Code End=================//
 //===================================================//
 
-
-// rules_version = '2';
-
-// service cloud.firestore {
-//   match /databases/{database}/documents {
-//     match /{document=**} {
-//       allow read, write: if true;
-//     }
-//   }
-// }
 
 
 // window.addEventListener("load", function() {
@@ -352,6 +478,21 @@ function loadContent(page, callback) {
             document.getElementById('photo-btn')?.addEventListener('click', function() {document.getElementById('take-photo-input').click();});
             document.getElementById('take-photo-input')?.addEventListener('change', handlePhotoSelection);
 
+            // Inventory price input
+            document.getElementById('price-input')?.addEventListener('input', function () {
+                
+                let val = this.value.replace(/[^0-9.]/g, '');                
+                const dotIndex = val.indexOf('.');
+     
+                if (dotIndex !== -1) {
+                  val = val.slice(0, dotIndex + 1) + val.slice(dotIndex + 1).replace(/\./g, '').slice(0, 2);
+                }
+            
+                if (val.startsWith('.')) val = '0' + val;
+            
+                this.value = val;
+            });
+
             // Inventory unit selection button
             const unitButton = document.getElementById("unit-input");
             const unitDropdownItems = document.querySelectorAll("#unit-input + .dropdown-menu .dropdown-item");
@@ -363,45 +504,105 @@ function loadContent(page, callback) {
                 });
             }
 
-            // Inventory supplier selection button
-            const supplierButton = document.getElementById("supplier-input");
-            const supplierDropdownItems = document.querySelectorAll("#supplier-input + .dropdown-menu .dropdown-item");
-            if (supplierButton && supplierDropdownItems.length) {
-                supplierDropdownItems.forEach(item => {
-                    item.addEventListener("click", function () {
-                        supplierButton.textContent = this.textContent;
-                    });
-                });
-            }
+            // Inventory barcode input
+            document.getElementById('barcode-input')?.addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
 
-            // Open Supplier Modal
+            // Inventory supplier selection button
+            // const supplierButton = document.getElementById("supplier-input");
+            // const supplierDropdownItems = document.querySelectorAll("#supplier-input + .dropdown-menu .dropdown-item");
+            // if (supplierButton && supplierDropdownItems.length) {
+            //     supplierDropdownItems.forEach(item => {
+            //         item.addEventListener("click", function () {
+            //             supplierButton.textContent = this.textContent;
+            //         });
+            //     });
+            // }
+
+            // Inventory Open Supplier Modal
             let addSupplierBtn = document.getElementById("add-new-supplier");
             let modal = document.getElementById('supplierPromptModal');
             let closeBtn = document.getElementById('closeBtn');
+            let notiModal = document.getElementById('notiPromptModal');
+            let notiCloseBtn = document.getElementById('notiCloseBtn');
+            let notiOkBtn = document.getElementById('noti-confirm-btn');
 
             if (addSupplierBtn) {
                 addSupplierBtn.addEventListener("click", function() {
                     modal.style.display = 'block';
                 });
             }
-
-            // Close Supplier Modal
+            // Inventory Close Supplier Modal
             if (closeBtn) {
                 closeBtn.addEventListener("click", function() {
                     modal.style.display = 'none';
                 });
             }
-
-            // Close when clicking outside modal
+            if (notiCloseBtn || notiOkBtn) {
+                notiCloseBtn.addEventListener("click", function() {
+                    notiModal.style.display = 'none';
+                });
+                notiOkBtn.addEventListener("click", function() {
+                    notiModal.style.display = 'none';
+                });
+            }
+            // Inventory Close when clicking outside modal
             window.onclick = function(event) {
                 if (event.target == modal) {
                     modal.style.display = 'none';
                 }
+                if (event.target == notiModal) {
+                    notiModal.style.display = 'none';
+                }
+                
             };
+            // Inventory supplier comfirm button
+            document.getElementById('supplier-confirm-btn')?.addEventListener('click', async () => {
+                await getSupplierData();
+            });
 
+            // Inventory adjuct order of table button
+            document.getElementById('sort-btn')?.addEventListener('click', () => {
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                loadData();
+                document.getElementById('sort-btn').innerHTML = currentSortOrder === 'asc' ? '<i class="fa-solid fa-arrow-up-wide-short fa-xl sort-button">' : '<i class="fa-solid fa-arrow-down-short-wide fa-xl sort-button">';
+            }); 
+
+            // Inventory search
+            document.getElementById('searchInput')?.addEventListener('input', function() {
+                searchTable();
+            }); 
+
+            // Inventory export data to excel file
+            document.getElementById('exportBtn')?.addEventListener('click', function(){
+              const headers = ["ID", "NAME", "ITEM", "DATEBORROW", "DATEEXPECTEDRETURN", "DATERETURN", "REMARKS"];
+
+              const modifiedDataRows = dataRows.map(row => {
+                  return {
+                      ID: row.id,
+                      NAME: row.name,
+                      ITEM: row.item,
+                      DATEBORROW: row.dateBorrow,
+                      DATEEXPECTEDRETURN: row.dateExpectedReturn,
+                      DATERETURN: typeof row.dateReturn === 'string' && row.dateReturn.includes("button") ? "Not returned" : row.dateReturn,
+                      REMARKS: row.remarks
+                  };
+              });
+
+              const wb = XLSX.utils.book_new();
+              const ws = XLSX.utils.json_to_sheet(modifiedDataRows, { header: headers });
+
+              XLSX.utils.book_append_sheet(wb, ws, "Data");
+              XLSX.writeFile(wb, "Robot_Inventory.xlsx");
+            });
+
+
+
+ 
             if (typeof callback === 'function') {
                 callback();
-            }
+            } 
 
         })
         .catch(error => console.error('Error loading content:', error));

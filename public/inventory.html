@@ -22,7 +22,7 @@
                 <div class="col-md-8">
                     <input type="text" placeholder="Enter item price" class="input-box" id="price-input" required>
                 </div>
-            </div>
+            </div>  
         
             <!-- Quantity Input -->
             <div class="mb-3 row align-items-center">
@@ -67,15 +67,9 @@
                 <label class="col-md-4 col-form-label label-text">Supplier:</label>
                 <div class="col-md-8">
                     <div class="btn-group w-100">
-                        <button type="button" class="btn btn-success dropdown-toggle w-100" data-bs-toggle="dropdown" id="supplier-input">
-                            Select Supplier
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item">Supplier 1</a>
-                            <a class="dropdown-item">Supplier 2</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="a dropdown-item" id="add-new-supplier">+ Add New Supplier</a>
-                        </div>
+                        <button type="button" class="btn btn-success dropdown-toggle w-100" data-bs-toggle="dropdown" id="supplier-input">Select Supplier</button>
+                        <input type="text" id="supplier-input-id" style="display: none;"> <!-- Store Data Url-->
+                        <div class="dropdown-menu" id="supplier-dropdown-menu"></div> 
                     </div>
                 </div>
             </div>
@@ -107,7 +101,7 @@
         <button class="btn btn-primary" id="inventory-comfirm-btn">Confirm</button>
         <div class="btn-container">
             <button id="save-btn" class="btn btn-primary" style="display: none;">Save</button>
-            <button id="cancel-btn" class="cancel-btn" style="display: none;">Cancel</button>
+            <button id="cancel-btn" class="cancel-btn loi" style="display: none;">Cancel</button>
         </div>
     </div>
     <!-- Enter Info Start-->
@@ -120,8 +114,9 @@
                     <input type="text" name="search" placeholder="Enter any details" class="searchinput" id="searchInput">
                     <i class="fa-solid fa-magnifying-glass fa-xl search-icon"></i>
                 </div>
+                <button id="sort-btn" class="sort-button"><i class="fa-solid fa-arrow-down-short-wide fa-xl"></i></button>
                 <div class="dropdown-sort"> 
-                    <i disabled data-bs-toggle="dropdown" class="fa-solid fa-arrow-down-short-wide fa-xl sort-button"></i>
+                    <i disabled data-bs-toggle="dropdown" class="fa-solid fa-filter fa-xl sort-button"></i>
                     <div class="dropdown-menu dropdown-menu-end border-0">
                         <a id="allUserBtn" class="dropdown-item">All</a>
                         <a id="returnedBtn" class="dropdown-item">Normal Stock</a>
@@ -143,12 +138,24 @@
                     </div>
                     <div class="m-3 row align-items-center">
                         <label class="mb-1 label-text">Supplier Contact:</label> 
-                        <input type="password" placeholder="Enter supplier contact" class="input-box" id="supplier-contact-input" required>
+                        <input type="text" placeholder="Enter supplier contact" class="input-box" id="supplier-contact-input" required>
                     </div>
-                    <button class="btn btn-primary" id="confirmSupplierBtn">Comfirm</button>
+                    <button class="btn btn-primary" id="supplier-confirm-btn">Comfirm</button>
                 </div>
             </div>
             <!-- Supplier Modal End -->
+
+            <!-- Notification Modal Start -->
+            <div id="notiPromptModal" class="supplierModal"> 
+                <div class="supplierModalContent">
+                    <span class="close" id="notiCloseBtn">&times;</span>
+                    <label class="header-text">Warning! </label>
+                    <p class="noti-text m-3" id="noti-count"></p>
+                    <p class="modal-message">stock item(s) need your attention. Please check the inventory list for details.</p>
+                    <button class="btn btn-primary" id="noti-confirm-btn">Ok</button>
+                </div>
+            </div>
+            <!-- Notification Modal End -->
         </div>
         <!-- Search and Filter End-->
 
@@ -157,7 +164,7 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>NO.</th>
                         <th>Name</th>
                         <th>Price (RM)</th>
                         <th>Quantity</th>

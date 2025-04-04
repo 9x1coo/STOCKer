@@ -120,14 +120,15 @@
   background-color: transparent;
   color: var(--dark);
   border: none; 
-  padding: 0; 
+  padding: 0;
   cursor: pointer;
-  margin-right: 20px;
+  margin-right: 5px;
 }
 .sort-button:hover{opacity: 0.7;}
 
 .dropdown-sort{
   cursor: pointer;
+  margin-right: 5px;
 }
 .dropdown-sort:hover .dropdown-menu {cursor: pointer;display: block;}
 
@@ -255,6 +256,13 @@ cursor: pointer;
   font-weight: bold;
   font-size: 3rem;
   text-align: left;
+}
+
+.noti-text{
+  color: #d70202;
+  font-weight: bold;
+  font-size: 5rem;
+  text-align: center;
 }
 
 .label-text{
