@@ -162,6 +162,13 @@ async function resetPassword() {
         loadContent('home.html');
     } catch (error) {
         console.error("Error sending password reset email:", error.message);
+        if (error.code === 'auth/user-not-found') {
+            document.getElementById('error-email').innerText = "This email is not registered.";
+        } else if (error.code === 'auth/invalid-email') {
+            document.getElementById('error-email').innerText = "Invalid email format.";
+        } else {
+            document.getElementById('error-email').innerText = "Something went wrong. Please try again.";
+        }
         document.getElementById('error-email').style.display = "block";
     }
 }
