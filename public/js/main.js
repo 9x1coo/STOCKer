@@ -25,6 +25,7 @@ const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
     if (user && user.emailVerified) {
+        console.log("User is verfired: ", user.emailVerified);
         console.log("User is logged in: ", user);
         currentUser = user.uid;
         currentUserEmail = user.email;
