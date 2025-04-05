@@ -57,18 +57,18 @@ onAuthStateChanged(auth, (user) => {
     // });
 // }
 
-function handleLogout() {
-    signOut(auth)
-        .then(() => {
-            document.getElementById('logout-btn').style.display = "none";
-            document.getElementById('login-btn').style.display = "block";
-            loadContent('home.html');
-            alert('You have successfully logged out.');
-        })
-        .catch((error) => {
-            console.error("Error signing out:", error.message);
-            alert('Error logging out: ' + error.message); 
-        });
+async function handleLogout() {
+    try {
+        await signOut(auth);
+
+        document.getElementById('logout-btn').style.display = "none";
+        document.getElementById('login-btn').style.display = "block";
+        loadContent('home.html');
+        alert('You have successfully logged out.');
+    } catch (error) {
+        console.error("Error signing out:", error.message);
+        alert('Error logging out: ' + error.message);
+    }
 }
 
 // Login Function with Firebase Authentication
@@ -106,21 +106,11 @@ async function getSignupInputData() {
 
     if (password.length < minLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
         document.getElementById('error-password').style.display = "block";
-        console.log("Password validation failed!");
     } else { 
         document.getElementById('error-password').style.display = "none";
 
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            
-            // User created successfully
-            // const user = userCredential.user;
-            // console.log("User created:", user);
-
-            // Optionally, you can add additional user data to Firestore
-            // const data = { email };
-            // const docRef = await addDoc(collection(firestore, 'user'), { ...data, uid: user.uid });
-            // dataRows.push({ id: docRef.id, ...data });
 
             alert('Sign Up successful! You may login now.');
             loadContent('login.html');
@@ -199,8 +189,6 @@ function getInput() {
 
 // edit data
 async function handleEdit(id, dateAdded) {
-    console.log("Editing item with ID:", id);
-    console.log(dateAdded);
     try {
         const docRef = doc(firestore, inventoryCol, id);
         const docSnap = await getDoc(docRef);
@@ -250,7 +238,6 @@ async function handleEdit(id, dateAdded) {
             try {
                 await updateDoc(doc(firestore, inventoryCol, id), updatedData);
                 await loadData();
-                console.log("Item updated successfully");
             } catch (error) {
                 console.error("Error updating item: ", error);
             }
@@ -269,12 +256,10 @@ async function handleEdit(id, dateAdded) {
 
 // delete data
 async function handleDelete(id) {
-    console.log("Deleting item with ID:", id);
     if (confirm('Are you sure you want to delete this item?')) {
         try {
             await deleteDoc(doc(firestore, inventoryCol, id));
             await loadData();
-            console.log("Deleted rows");
         } catch (error) {
             console.error("Error deleting supplier: ", error);
         }
@@ -319,7 +304,6 @@ function addToTable(data) {
         </td>
     `;
 
-    console.log("Rows added!!");
     tableBody.appendChild(newRow);
 
     const editBtn = newRow.querySelector('.edit-btn');
@@ -365,14 +349,12 @@ async function loadData() {
     if (count > 0) {
         document.getElementById('noti-count').innerText = count;
         document.getElementById('notiPromptModal').style.display = 'block';
-        console.log("Show noti");
     }
 }
 
 //take photo
 function handlePhotoSelection(event) {
     const file = event.target.files[0]; 
-    console.log("clicked");
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -407,8 +389,6 @@ function handlePhotoSelection(event) {
 
                 ctx.drawImage(img, 0, 0, width, height); //canvas cannot accept dataUrl
 
-                console.log("got image!");
-
                 // Compress the image
                 const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.2);
 
@@ -434,7 +414,6 @@ async function saveInputData() {
         try {
             const docRef = await addDoc(collection(firestore, inventoryCol), data);
             data.id = docRef.id;
-            console.log("Data added");
             loadData();
             resetInput();
         } catch (error) {
@@ -452,12 +431,10 @@ async function loadSuppliers() {
 
     try {
         const querySnapshot = await getDocs(collection(firestore, cupplierCol));
-        console.log("Supplierrrr");
 
         if (querySnapshot.empty) {
             const defaultData = { name: 'Unknown Supplier', contact: 'N/A' };
             const docRef = await addDoc(collection(firestore, cupplierCol), defaultData);
-            console.log('Default supplier added:', docRef.id);
             return;
         }
 
@@ -508,7 +485,6 @@ async function deleteSupplier(id) {
             await loadSuppliers();
             document.getElementById('supplier-input').textContent = "Select Supplier";
             document.getElementById('supplier-input-id').value = "";
-            console.log("deleteeeee");
             document.getElementById('supplier-input').disabled = false;
         } catch (error) {
             console.error("Error deleting supplier: ", error);
@@ -598,7 +574,6 @@ function loadContent(page, callback) {
                     .then((result) => {
                         // Signed in successfully
                         const user = result.user;
-                        console.log("User signed in with Google: ", user);
                         loadContent('inventory.html');
                     })
                     .catch((error) => {
