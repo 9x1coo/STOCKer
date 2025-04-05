@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {query, serverTimestamp, getFirestore, doc, addDoc, collection, getDocs, getDoc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 let currentUser = null;
@@ -23,7 +23,8 @@ const firestore = getFirestore(firebaseApp);
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
+    await user.reload();
     if (user && user.emailVerified) {
         console.log("User is verfired: ", user.emailVerified);
         console.log("User is logged in: ", user);
@@ -40,7 +41,7 @@ onAuthStateChanged(auth, (user) => {
         }); 
     } else {
         console.log("No user is logged in.");
-        loadContent('home.html');
+        await handleLogout();
     } 
 });
 
@@ -93,9 +94,7 @@ async function checkUserLogin() {
 
         await user.reload();
 
-        if (user.emailVerified) {
-            alert('Login successful!');
-        } else {
+        if (!user.emailVerified) {
             await sendEmail(user);
             await handleLogout();
         }
@@ -142,6 +141,25 @@ async function getSignupInputData() {
     }
 }
 
+// Reset password
+async function resetPassword() {
+    const email = document.getElementById('forgot-email-input').value;
+
+    if (!email) {
+        alert("Please enter your email address.");
+        return;
+    }
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+        alert('Password reset email sent! Check your inbox.');
+        document.getElementById('error-email').style.display = "none";
+        loadContent('home.html');
+    } catch (error) {
+        console.error("Error sending password reset email:", error.message);
+        document.getElementById('error-email').style.display = "block";
+    }
+}
 
 
 //===================================================//
@@ -561,7 +579,7 @@ function searchTable() {
 
 function loadContent(page, callback) {
     fetch(page)
-        .then(response => response.text())
+        .then(response => response.text()) 
         .then(data => {
             document.getElementById('dynamic-content').innerHTML = data;
 
@@ -574,6 +592,9 @@ function loadContent(page, callback) {
             }); 
             document.getElementById("login-start-btn")?.addEventListener("click", function() {
                 loadContent("login.html");
+            });
+            document.getElementById("forgot-password-btn")?.addEventListener("click", function() {
+                loadContent("password.html");
             });
             document.getElementById("signup-btn")?.addEventListener("click", function() {
                 loadContent("signup.html");
@@ -600,6 +621,11 @@ function loadContent(page, callback) {
                         // Handle Errors here
                         console.error("Error during Google Sign-In: ", error.message);
                     });
+            });
+
+            // Reset password comfirm button
+            document.getElementById('password-comfirm-btn')?.addEventListener('click', async () => {
+                await resetPassword();
             });
 
             // Inventory page comfirm button
@@ -736,7 +762,7 @@ function loadContent(page, callback) {
 }
  
 if (window.location.pathname.includes("main.html")) {
-    loadContent('home.html');
+    loadContent('login.html');
 }
 
 
