@@ -24,25 +24,30 @@ const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, async (user) => {
-    await user.reload();
-    if (user && user.emailVerified) {
-        console.log("User is verfired: ", user.emailVerified);
-        console.log("User is logged in: ", user);
-        currentUser = user.uid;
-        currentUserEmail = user.email;
-        inventoryCol = `users/${currentUser}/Inventory`;
-        cupplierCol = `users/${currentUser}/Supplier`;
-        document.getElementById('logout-btn').style.display = "block";
-        document.getElementById('login-btn').style.display = "none";
+    if (user) {
+        await user.reload();
+        if (user.emailVerified) {
+            console.log("User is verified: ", user.emailVerified);
+            console.log("User is logged in: ", user);
+            currentUser = user.uid;
+            currentUserEmail = user.email;
+            inventoryCol = `users/${currentUser}/Inventory`;
+            cupplierCol = `users/${currentUser}/Supplier`;
+            document.getElementById('logout-btn').style.display = "block";
+            document.getElementById('login-btn').style.display = "none";
 
-        loadContent('inventory.html', () => {
-            loadSuppliers();
-            loadData();
-        }); 
+            loadContent('inventory.html', () => {
+                loadSuppliers();
+                loadData();
+            }); 
+        } else {
+            console.log("User is not verified. Logging out.");
+            await handleLogout();
+        }
     } else {
         console.log("No user is logged in.");
-        await handleLogout();
-    } 
+        loadContent('home.html');
+    }
 });
 
 // function checkUserAuth() {
