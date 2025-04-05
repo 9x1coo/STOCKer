@@ -599,8 +599,7 @@ function loadContent(page, callback) {
                         // Signed in successfully
                         const user = result.user;
                         console.log("User signed in with Google: ", user);
-                        alert('Sign Up successful! You may login now.');
-                        loadContent('login.html');
+                        loadContent('inventory.html');
                     })
                     .catch((error) => {
                         // Handle Errors here
@@ -742,7 +741,7 @@ function loadContent(page, callback) {
 }
  
 if (window.location.pathname.includes("main.html")) {
-    loadContent('inventory.html');
+    loadContent('home.html');
 }
 
 
