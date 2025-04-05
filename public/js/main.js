@@ -1,9 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {query, serverTimestamp, getFirestore, doc, addDoc, setDoc, collection, getDocs, getDoc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-let currentUser = "";
+let currentUser = null;
+let currentUserEmail = "";
 let currentSortOrder = 'desc';
+
+let inventoryCol = null;
+let cupplierCol = null;
 
 const firebaseApp = initializeApp({
     apiKey: "AIzaSyA7TsXEByLxZLuPga32MlbBzI92zSXpelY",
@@ -17,11 +21,15 @@ const firebaseApp = initializeApp({
 
 const firestore = getFirestore(firebaseApp);
 const auth = getAuth();
+const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("User is logged in: ", user);
-        currentUser = user.email;
+        currentUser = user.uid;
+        currentUserEmail = user.email;
+        inventoryCol = `users/${currentUser}/Inventory`;
+        cupplierCol = `users/${currentUser}/Supplier`;
         document.getElementById('logout-btn').style.display = "block";
         document.getElementById('login-btn').style.display = "none";
 
@@ -52,6 +60,8 @@ onAuthStateChanged(auth, (user) => {
 function handleLogout() {
     signOut(auth)
         .then(() => {
+            document.getElementById('logout-btn').style.display = "none";
+            document.getElementById('login-btn').style.display = "block";
             loadContent('home.html');
             alert('You have successfully logged out.');
         })
@@ -146,17 +156,129 @@ function getDate(){
 }
 
 //clear the input
-function resetInput(){
-    document.getElementById('comfirm-btn').style.display = 'block';
+function resetInput() {
+    document.getElementById('item-input').value = '';
+    document.getElementById('photo-input-url').value = '';
+    document.getElementById('itemPhotoImg').src = '';
+    document.getElementById('itemPhotoImg').style.display = 'none';
+
+    document.getElementById('price-input').value = '';
+    document.getElementById('quantity-input').value = 0;
+    document.getElementById('unit-input').innerText = 'Select Unit';
+
+    document.getElementById('barcode-input').value = '';
+    document.getElementById('supplier-input').innerText = 'Select Supplier';
+    document.getElementById('supplier-input-id').value = '';
+
+    document.getElementById('description-input').value = '';
+    document.getElementById('low-stock-input').value = 0;
+    document.getElementById('over-stock-input').value = 0;
+
     document.getElementById('save-btn').style.display = 'none';
     document.getElementById('cancel-btn').style.display = 'none';
-    document.getElementById('itemPhotoImg').style.display = 'none';
-  
-    document.getElementById('name-input').value = "";
-    document.getElementById('item-input').value = "";
-    document.getElementById('date-input').value = "";
-    document.getElementById('remarks-input').value = "";
-    document.getElementById('photo-input-url').value = "";
+    document.getElementById('inventory-comfirm-btn').style.display = 'block';
+}
+
+// get input
+function getInput() {
+    const name = document.getElementById('item-input').value;
+    const itemPhoto = document.getElementById('photo-input-url').value;
+    const price = document.getElementById('price-input').value;
+    const quantity = parseInt(document.getElementById('quantity-input').value);
+    const unit = document.getElementById('unit-input').textContent;
+    const barcode = document.getElementById('barcode-input').value;
+    const supplier = document.getElementById('supplier-input-id').value;
+    const description = document.getElementById('description-input').value;
+    const min = parseInt(document.getElementById('low-stock-input').value);
+    const max = parseInt(document.getElementById('over-stock-input').value);
+    const dateUpdate = getDate();
+    const userUpdate = currentUserEmail;
+
+    return { name, itemPhoto, price, quantity, unit, barcode, supplier, description, min, max, dateUpdate, userUpdate };
+}
+
+// edit data
+async function handleEdit(id, dateAdded) {
+    console.log("Editing item with ID:", id);
+    console.log(dateAdded);
+    try {
+        const docRef = doc(firestore, inventoryCol, id);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            console.error(`Document with ID ${id} not found.`);
+            return;
+        }
+
+        const dataToEdit = docSnap.data();
+        dataToEdit.id = id;
+
+        document.getElementById('inventory-comfirm-btn').style.display = 'none';
+        document.getElementById('save-btn').style.display = 'block';
+        document.getElementById('cancel-btn').style.display = 'block';
+
+        document.getElementById('item-input').value = dataToEdit.name || '';
+        document.getElementById('photo-input-url').value = dataToEdit.itemPhoto || '';
+        document.getElementById('itemPhotoImg').src = dataToEdit.itemPhoto || '';
+        document.getElementById('itemPhotoImg').style.display = dataToEdit.itemPhoto ? 'block' : 'none';
+
+        document.getElementById('price-input').value = dataToEdit.price || '';
+        document.getElementById('quantity-input').value = dataToEdit.quantity || '';
+        document.getElementById('unit-input').innerText = dataToEdit.unit;
+        document.getElementById('barcode-input').value = dataToEdit.barcode || '';
+
+        document.getElementById('supplier-input-id').value = dataToEdit.supplier || '';
+        const supplierDocRef = doc(firestore, cupplierCol, dataToEdit.supplier);
+        const supplierDoc = await getDoc(supplierDocRef);
+        const supplier = supplierDoc.exists() ? supplierDoc.data() : null;
+        if (supplier) {
+            document.getElementById('supplier-input').innerText = supplier.name || 'Select Supplier';
+        } else {
+            document.getElementById('supplier-input').innerText = 'Select Supplier';
+        }
+
+        document.getElementById('description-input').value = dataToEdit.description || '';
+        document.getElementById('low-stock-input').value = dataToEdit.min || '';
+        document.getElementById('over-stock-input').value = dataToEdit.max || '';
+
+        // Save the edits
+        document.getElementById('save-btn').onclick = async function () {
+            const updatedData = getInput();
+            updatedData.id = id;
+            updatedData.dateAdded = dateAdded;
+
+            try {
+                await updateDoc(doc(firestore, inventoryCol, id), updatedData);
+                await loadData();
+                console.log("Item updated successfully");
+            } catch (error) {
+                console.error("Error updating item: ", error);
+            }
+
+            resetInput();
+        };
+
+        document.getElementById('cancel-btn').onclick = function () {
+            resetInput();
+        };
+
+    } catch (error) {
+        console.error("Error loading item for edit:", error);
+    }
+}
+
+// delete data
+async function handleDelete(id) {
+    console.log("Deleting item with ID:", id);
+    if (confirm('Are you sure you want to delete this item?')) {
+        try {
+            await deleteDoc(doc(firestore, inventoryCol, id));
+            await loadData();
+            console.log("Deleted rows");
+        } catch (error) {
+            console.error("Error deleting supplier: ", error);
+        }
+    }
 }
 
 //display the data in the table
@@ -166,9 +288,9 @@ function addToTable(data) {
 
     const itemPhotoHtml = data.itemPhoto ? `<img src="${data.itemPhoto}" alt="Item Photo" width="200" height="200">` : '';
 
-    if (data.quantity < data.min) {
+    if (parseInt(data.quantity) < parseInt(data.min)) {
         newRow.style.backgroundColor = '#fff3cd';
-    } else if (data.quantity > data.max) {
+    } else if (parseInt(data.quantity) > parseInt(data.max)) {
         newRow.style.backgroundColor = '#f8d7da';
     }
 
@@ -176,7 +298,7 @@ function addToTable(data) {
         <td>${data.index}</td>
         <td>${data.name}<br>${itemPhotoHtml}</td>
         <td>${data.price}</td>
-        <td>${data.quantity}</td> 
+        <td>${data.quantity} ${data.unit}(s)</td>
         <td>${data.barcode}</td>
         <td>${data.supplierName}</td>
         <td>${data.supplierContact}</td>
@@ -185,16 +307,31 @@ function addToTable(data) {
         <td>${data.description}</td>
         <td>${data.min}</td>
         <td>${data.max}</td>
-        <td><span><button data-id="${data.id}" class="btn btn-primary edit-btn" style="margin:5px;"><i class="fa-solid fa-pen fa-lg" style="color: #ffffff;"></i></button><button data-id="${data.id}" class="btn btn-primary delete-btn" style="background-color:#d73200;"><i class="fa-regular fa-trash-can fa-lg" style="color: #ffffff;"></i></button></span></td>
+        <td>
+            <span>
+                <button data-id="${data.id}" class="btn btn-primary edit-btn" style="margin:5px;">
+                    <i class="fa-solid fa-pen fa-lg" style="color: #ffffff;"></i>
+                </button>
+                <button data-id="${data.id}" class="btn btn-primary delete-btn" style="background-color:#d73200;">
+                    <i class="fa-regular fa-trash-can fa-lg" style="color: #ffffff;"></i>
+                </button>
+            </span>
+        </td>
     `;
 
     console.log("Rows added!!");
     tableBody.appendChild(newRow);
+
+    const editBtn = newRow.querySelector('.edit-btn');
+    const deleteBtn = newRow.querySelector('.delete-btn');
+
+    editBtn.addEventListener('click', () => handleEdit(data.id, data.dateAdded));
+    deleteBtn.addEventListener('click', () => handleDelete(data.id));
 }
 
 //load the data from firestore to the table
 async function loadData() {
-    const dataRowsCollection = query(collection(firestore, 'Inventory'), orderBy("dateAdded", currentSortOrder));
+    const dataRowsCollection = query(collection(firestore, inventoryCol), orderBy("dateAdded", currentSortOrder));
     const querySnapshot = await getDocs(dataRowsCollection);
 
     const tableBody = document.getElementById('data-table-body');
@@ -208,7 +345,7 @@ async function loadData() {
         data.index = index++;
         data.id = docs.id;
 
-        const supplierDocRef = doc(firestore, 'Supplier', data.supplier);
+        const supplierDocRef = doc(firestore, cupplierCol, data.supplier);
         const supplierDoc = await getDoc(supplierDocRef);
         const supplier = supplierDoc.exists() ? supplierDoc.data() : null;
 
@@ -287,32 +424,19 @@ function handlePhotoSelection(event) {
 }
 
 //get data from input
-async function getInputData() {
-    const name = document.getElementById('item-input').value;
-    const itemPhoto = document.getElementById('photo-input-url').value;
-    const price = document.getElementById('price-input').value;
-    const quantity = document.getElementById('quantity-input').value +" "+ document.getElementById('unit-input').textContent + "(s)";
-    const barcode = document.getElementById('barcode-input').value;
-    const supplier = document.getElementById('supplier-input-id').value;
-    const dateUpdate = getDate();
-    const userUpdate = currentUser;
-    const description = document.getElementById('description-input').value;
-    const min = document.getElementById('low-stock-input').value;
-    const max = document.getElementById('over-stock-input').value;
-    const dateAdded = serverTimestamp();
+async function saveInputData() {
+    const data = getInput();
+    data.dateAdded = serverTimestamp();
 
-    if (parseInt(min) >= parseInt(max)){
+    if (parseInt(data.min) >= parseInt(data.max)){
         alert('Low stock\'s alert should not be more than over stock.');
-    } else if (name.trim() && price.trim() && quantity.trim() && (parseInt(min) < parseInt(max)) && !quantity.includes("Select") && !supplier.includes("Select")) { 
+    } else if (data.name.trim() && data.price.trim() && !isNaN(data.quantity) && (parseInt(data.min) < parseInt(data.max)) && !data.unit.includes("Select") && !data.supplier.includes("Select")) { 
         try {
-            const data = { name, itemPhoto, price, quantity, barcode, description, supplier, dateUpdate, userUpdate, min, max, dateAdded };
-            const docRef = await addDoc(collection(firestore, 'Inventory'), data);
-            data.id = docRef.id; 
-
-            // Update UI
+            const docRef = await addDoc(collection(firestore, inventoryCol), data);
+            data.id = docRef.id;
             console.log("Data added");
-            loadData(); 
-            // resetInput();
+            loadData();
+            resetInput();
         } catch (error) {
             console.error("Error adding document: ", error);
         }
@@ -327,12 +451,12 @@ async function loadSuppliers() {
     dropdownMenu.innerHTML = '';
 
     try {
-        const querySnapshot = await getDocs(collection(firestore, 'Supplier'));
+        const querySnapshot = await getDocs(collection(firestore, cupplierCol));
         console.log("Supplierrrr");
 
         if (querySnapshot.empty) {
             const defaultData = { name: 'Unknown Supplier', contact: 'N/A' };
-            const docRef = await addDoc(collection(firestore, 'Supplier'), defaultData);
+            const docRef = await addDoc(collection(firestore, cupplierCol), defaultData);
             console.log('Default supplier added:', docRef.id);
             return;
         }
@@ -380,7 +504,7 @@ async function loadSuppliers() {
 async function deleteSupplier(id) {
     if (confirm('Are you sure you want to delete this supplier?')) {
         try {
-            await deleteDoc(doc(firestore, 'Supplier', id));
+            await deleteDoc(doc(firestore, cupplierCol, id));
             await loadSuppliers();
             document.getElementById('supplier-input').textContent = "Select Supplier";
             document.getElementById('supplier-input-id').value = "";
@@ -405,7 +529,7 @@ async function getSupplierData() {
             document.getElementById('supplier-input').disabled = true;
 
             const data = { name, contact };
-            const docRef = await addDoc(collection(firestore, 'Supplier'), data);
+            const docRef = await addDoc(collection(firestore, cupplierCol), data);
             data.id = docRef.id; 
 
             await loadSuppliers();
@@ -468,10 +592,25 @@ function loadContent(page, callback) {
             document.getElementById('signup-comfirm-btn')?.addEventListener('click', async () => {
                 await getSignupInputData();
             });
+            // Google sign-up
+            document.getElementById('google-signup-btn')?.addEventListener('click', function() {
+                signInWithPopup(auth, provider)
+                    .then((result) => {
+                        // Signed in successfully
+                        const user = result.user;
+                        console.log("User signed in with Google: ", user);
+                        alert('Sign Up successful! You may login now.');
+                        loadContent('login.html');
+                    })
+                    .catch((error) => {
+                        // Handle Errors here
+                        console.error("Error during Google Sign-In: ", error.message);
+                    });
+            });
 
             // Inventory page comfirm button
             document.getElementById('inventory-comfirm-btn')?.addEventListener('click', async () => {
-                await getInputData();
+                await saveInputData();
             });
 
             // Inventory take photo button
@@ -508,17 +647,6 @@ function loadContent(page, callback) {
             document.getElementById('barcode-input')?.addEventListener('input', function () {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
-
-            // Inventory supplier selection button
-            // const supplierButton = document.getElementById("supplier-input");
-            // const supplierDropdownItems = document.querySelectorAll("#supplier-input + .dropdown-menu .dropdown-item");
-            // if (supplierButton && supplierDropdownItems.length) {
-            //     supplierDropdownItems.forEach(item => {
-            //         item.addEventListener("click", function () {
-            //             supplierButton.textContent = this.textContent;
-            //         });
-            //     });
-            // }
 
             // Inventory Open Supplier Modal
             let addSupplierBtn = document.getElementById("add-new-supplier");
@@ -575,31 +703,36 @@ function loadContent(page, callback) {
             }); 
 
             // Inventory export data to excel file
-            document.getElementById('exportBtn')?.addEventListener('click', function(){
-              const headers = ["ID", "NAME", "ITEM", "DATEBORROW", "DATEEXPECTEDRETURN", "DATERETURN", "REMARKS"];
-
-              const modifiedDataRows = dataRows.map(row => {
-                  return {
-                      ID: row.id,
-                      NAME: row.name,
-                      ITEM: row.item,
-                      DATEBORROW: row.dateBorrow,
-                      DATEEXPECTEDRETURN: row.dateExpectedReturn,
-                      DATERETURN: typeof row.dateReturn === 'string' && row.dateReturn.includes("button") ? "Not returned" : row.dateReturn,
-                      REMARKS: row.remarks
-                  };
-              });
-
-              const wb = XLSX.utils.book_new();
-              const ws = XLSX.utils.json_to_sheet(modifiedDataRows, { header: headers });
-
-              XLSX.utils.book_append_sheet(wb, ws, "Data");
-              XLSX.writeFile(wb, "Robot_Inventory.xlsx");
+            document.getElementById('exportBtn')?.addEventListener('click', function () {
+                const table = document.querySelector('.data-table');
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+            
+                const headers = ["NO.", "Name", "Price (RM)", "Quantity", "Barcode", "Supplier Name", "Supplier Contact", "Date Updated", "Updated By", "Description"];
+            
+                const dataToExport = rows.map(row => {
+                    const cells = row.querySelectorAll('td');
+            
+                    return {
+                        "NO.": cells[0]?.innerText.trim(),
+                        "Name": cells[1]?.innerText.trim(),
+                        "Price (RM)": cells[2]?.innerText.trim(),
+                        "Quantity": cells[3]?.innerText.trim(),
+                        "Barcode": cells[4]?.innerText.trim(),
+                        "Supplier Name": cells[5]?.innerText.trim(),
+                        "Supplier Contact": cells[6]?.innerText.trim(),
+                        "Date Updated": cells[7]?.innerText.trim(),
+                        "Updated By": cells[8]?.innerText.trim(),
+                        "Description": cells[9]?.innerText.trim()
+                    };
+                });
+            
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(dataToExport, { header: headers });
+            
+                XLSX.utils.book_append_sheet(wb, ws, "Inventory Data");
+                XLSX.writeFile(wb, "Inventory_Export_"+ getDate() +".xlsx");
             });
 
-
-
- 
             if (typeof callback === 'function') {
                 callback();
             } 
