@@ -25,24 +25,18 @@ const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        if (user.emailVerified) {
-            console.log("User is logged in: ", user);
-            currentUser = user.uid;
-            currentUserEmail = user.email;
-            inventoryCol = `users/${currentUser}/Inventory`;
-            cupplierCol = `users/${currentUser}/Supplier`;
-            document.getElementById('logout-btn').style.display = "block";
-            document.getElementById('login-btn').style.display = "none";
+        console.log("User is logged in: ", user);
+        currentUser = user.uid;
+        currentUserEmail = user.email;
+        inventoryCol = `users/${currentUser}/Inventory`;
+        cupplierCol = `users/${currentUser}/Supplier`;
+        document.getElementById('logout-btn').style.display = "block";
+        document.getElementById('login-btn').style.display = "none";
 
-            loadContent('inventory.html', () => {
-                loadSuppliers();
-                loadData();
-            }); 
-        } else {
-            alert('Please verify your email before proceeding.');
-            loadContent('home.html');
-        }
-
+        loadContent('inventory.html', () => {
+            loadSuppliers();
+            loadData();
+        }); 
     } else {
         console.log("No user is logged in.");
         loadContent('home.html');
@@ -63,14 +57,26 @@ onAuthStateChanged(auth, (user) => {
     // });
 // }
 
+async function sendEmailVerification(user) {
+    sendEmailVerification(user)
+        .then(() => {
+            console.log('Email verification sent!');
+            alert('Please verify your email before logging in!');
+            loadContent('login.html');
+        })
+        .catch((error) => {
+            console.error('Error sending email verification:', error.message);
+            alert('Email not found! Please check your email!');
+        });
+}
+
+//logout user
 async function handleLogout() {
     try {
         await signOut(auth);
-
         document.getElementById('logout-btn').style.display = "none";
         document.getElementById('login-btn').style.display = "block";
         loadContent('home.html');
-        alert('You have successfully logged out.');
     } catch (error) {
         console.error("Error signing out:", error.message);
         alert('Error logging out: ' + error.message);
@@ -81,13 +87,19 @@ async function handleLogout() {
 async function checkUserLogin() {
     const email = document.getElementById('login-email-input').value;
     const password = document.getElementById('login-password-input').value;
-
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        loadContent('inventory.html');
+
+        if (user.emailVerified) {
+            alert('Login successful!');
+        } else {
+            await sendEmailVerification(user);
+            await handleLogout();
+        }
     } catch (error) {
-        document.getElementById('error-message').style.display = "block";
+        console.error('Error logging in user:', error.message);
+        alert('Error: ' + error.message);
     }
 } 
 
@@ -119,16 +131,7 @@ async function getSignupInputData() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            sendEmailVerification(user)
-                .then(() => {
-                    console.log('Email verification sent!');
-                    alert('Please verify your email before logging in!');
-                    loadContent('login.html');
-                })
-                .catch((error) => {
-                    console.error('Error sending email verification:', error.message);
-                    alert('Email not found! Please check your email!');
-                });
+            await sendEmailVerification(user);
 
         } catch (error) {
             console.error("Error signing up:", error.message);
