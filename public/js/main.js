@@ -9,6 +9,8 @@ let currentSortOrder = 'desc';
 let inventoryCol = null;
 let cupplierCol = null;
 
+let allData = [];
+
 const firebaseApp = initializeApp({
     apiKey: "AIzaSyA7TsXEByLxZLuPga32MlbBzI92zSXpelY",
     authDomain: "stocker-83325.firebaseapp.com",
@@ -24,6 +26,7 @@ const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, async (user) => {
+    document.getElementById('spinner').style.display = "block";
     if (user) {
         await user.reload();
         if (user.emailVerified) {
@@ -35,35 +38,25 @@ onAuthStateChanged(auth, async (user) => {
             cupplierCol = `users/${currentUser}/Supplier`;
             document.getElementById('logout-btn').style.display = "block";
             document.getElementById('login-btn').style.display = "none";
-
             loadContent('inventory.html', () => {
                 loadSuppliers();
                 loadData();
+                document.getElementById('spinner').style.display = "none";
             }); 
+            document.getElementById('logo-btn').disabled = true;
         } else {
             console.log("User is not verified. Logging out.");
             await handleLogout();
+            document.getElementById('spinner').style.display = "none";
         }
     } else {
         console.log("No user is logged in.");
         loadContent('home.html');
+        document.getElementById('logo-btn').disabled = false;
     }
 });
 
-// function checkUserAuth() {
-    // onAuthStateChanged(auth, (user) => {
-    //     if (user && window.location.pathname.includes("main.html")) {
-    //         console.log("User is logged in: ", user);
-    //         loadContent("inventory.html");
-    //         // window.location.replace("inventory.html");
-    //     } else if (!user && window.location.pathname.includes("main.html")) {
-    //         console.log("No user is logged in.");
-    //         loadContent("home.html")
-    //         // window.location.replace("main.html");
-    //     }
-    // });
-// }
-
+// send verification email
 async function sendEmail(user) {
     sendEmailVerification(user)
         .then(() => {
@@ -105,7 +98,7 @@ async function checkUserLogin() {
         }
     } catch (error) {
         console.error('Error logging in user:', error.message);
-        alert('Error: ' + error.message);
+        document.getElementById('error-message').style.display = "block";
     }
 } 
 
@@ -223,7 +216,7 @@ function resetInput() {
 function getInput() {
     const name = document.getElementById('item-input').value;
     const itemPhoto = document.getElementById('photo-input-url').value;
-    const price = document.getElementById('price-input').value;
+    const price = parseFloat(document.getElementById('price-input').value);
     const quantity = parseInt(document.getElementById('quantity-input').value);
     const unit = document.getElementById('unit-input').textContent;
     const barcode = document.getElementById('barcode-input').value;
@@ -364,7 +357,7 @@ function addToTable(data) {
 }
 
 //load the data from firestore to the table
-async function loadData() {
+async function loadData() { 
     const dataRowsCollection = query(collection(firestore, inventoryCol), orderBy("dateAdded", currentSortOrder));
     const querySnapshot = await getDocs(dataRowsCollection);
 
@@ -392,6 +385,8 @@ async function loadData() {
             data.supplierName = "Unknown";
             data.supplierContact = "N/A";
         }
+
+        allData.push(data);
 
         addToTable(data);
     }
@@ -458,9 +453,9 @@ async function saveInputData() {
     const data = getInput();
     data.dateAdded = serverTimestamp();
 
-    if (parseInt(data.min) >= parseInt(data.max)){
+    if (data.min >= data.max){
         alert('Low stock\'s alert should not be more than over stock.');
-    } else if (data.name.trim() && data.price.trim() && !isNaN(data.quantity) && (parseInt(data.min) < parseInt(data.max)) && !data.unit.includes("Select") && !data.supplier.includes("Select")) { 
+    } else if (data.name && data.price && !isNaN(data.price) && !isNaN(data.quantity) && !data.unit.includes("Select") && !data.supplier.includes("Select")) { 
         try {
             const docRef = await addDoc(collection(firestore, inventoryCol), data);
             data.id = docRef.id;
@@ -579,15 +574,34 @@ function searchTable() {
         rows[i].style.display = rowText.includes(input) ? '' : 'none';
     }
 }
+
+// filter
+function filterStock(filterType) {
+    const filteredData = allData.filter(item => {
+        if (filterType === 'normal') {
+            return item.quantity >= item.min && item.quantity <= item.max;
+        } else if (filterType === 'low') {
+            return item.quantity < item.min;
+        } else if (filterType === 'over') {
+            return item.quantity > item.max;
+        } else {
+            return true;
+        }
+    });
+
+    updateTable(filteredData);
+}
+
+// Update table with filtered data
+function updateTable(filteredData) {
+    const tableBody = document.getElementById('data-table-body');
+    tableBody.innerHTML = '';
+
+    filteredData.forEach(data => addToTable(data));
+}
 //===================================================//
 //================Inventory Code End=================//
 //===================================================//
-
-
-
-// window.addEventListener("load", function() {
-//     checkUserAuth();
-// });
 
 function loadContent(page, callback) {
     fetch(page)
@@ -734,6 +748,20 @@ function loadContent(page, callback) {
                 searchTable();
             }); 
 
+            // Inventory filter
+            document.getElementById('allItemBtn')?.addEventListener('click', () => {
+                filterStock('all');
+            });
+            document.getElementById('normalBtn')?.addEventListener('click', () => {
+                filterStock('normal');
+            });
+            document.getElementById('lowBtn')?.addEventListener('click', () => {
+                filterStock('low');
+            });
+            document.getElementById('overBtn')?.addEventListener('click', () => {
+                filterStock('over');
+            });
+
             // Inventory export data to excel file
             document.getElementById('exportBtn')?.addEventListener('click', function () {
                 const table = document.querySelector('.data-table');
@@ -777,13 +805,6 @@ if (window.location.pathname.includes("main.html")) {
     loadContent('home.html');
 }
 
-
-
-
-
-
-
-
 (function ($) {
     "use strict";
 
@@ -825,11 +846,4 @@ if (window.location.pathname.includes("main.html")) {
             $(this).css("width", $(this).attr("aria-valuenow") + '%');
         });
     }, {offset: '80%'});
-
-
-    // Calender
-    $('#calender').datetimepicker({
-        inline: true,
-        format: 'L'
-    });
 })(jQuery);

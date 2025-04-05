@@ -33,7 +33,7 @@
     <div class="container-xxl position-relative d-flex p-0">
         <!-- Spinner Start -->
         <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <div class="spinner-border" style="width: 3rem; height: 3rem; border-top-color: #91e542;" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
@@ -43,7 +43,7 @@
         <div class="container-fluid p-4"> 
             <!-- Header Start-->
             <div class="d-flex align-items-center justify-content-between">
-                <a href="main.html"><img alt="company_logo" style="height:4.5rem;" src="image/STOCKer_logo.png"></a>
+                <a href="main.html" id="logo-btn"><img alt="company_logo" style="height:4.5rem;" src="image/STOCKer_logo.png"></a>
                 <button class="login-btn" id="logout-btn" style="display: none;">Logout</button> 
                 <button class="login-btn" id="login-btn">Login</button>
             </div>
@@ -52,6 +52,8 @@
             <div id="dynamic-content">
                 <!-- Content will be loaded here -->
             </div>
+            
+            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top" ><i class="bi bi-arrow-up"></i></a>
         </div>
         <!-- Content End -->
     </div>
