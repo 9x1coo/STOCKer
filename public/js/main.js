@@ -225,9 +225,8 @@ function getInput() {
     const min = parseInt(document.getElementById('low-stock-input').value);
     const max = parseInt(document.getElementById('over-stock-input').value);
     const dateUpdate = getDate();
-    const userUpdate = currentUserEmail;
 
-    return { name, itemPhoto, price, quantity, unit, barcode, supplier, description, min, max, dateUpdate, userUpdate };
+    return { name, itemPhoto, price, quantity, unit, barcode, supplier, description, min, max, dateUpdate };
 }
 
 // edit data
@@ -278,11 +277,17 @@ async function handleEdit(id, dateAdded) {
             updatedData.id = id;
             updatedData.dateAdded = dateAdded;
 
-            try {
-                await updateDoc(doc(firestore, inventoryCol, id), updatedData);
-                await loadData();
-            } catch (error) {
-                console.error("Error updating item: ", error);
+            if (updatedData.min >= updatedData.max){
+                alert('Low stock\'s alert should not be more than over stock.');
+            } else if (updatedData.name && updatedData.price && !isNaN(updatedData.price) && !isNaN(updatedData.quantity) && !updatedData.unit.includes("Select") && !updatedData.supplier.includes("Select")) { 
+                try {
+                    await updateDoc(doc(firestore, inventoryCol, id), updatedData);
+                    await loadData();
+                } catch (error) {
+                    console.error("Error adding document: ", error);
+                }
+            } else {
+                alert('Please fill out all required fields.');
             }
 
             resetInput();
@@ -330,11 +335,10 @@ function addToTable(data) {
         <td>${data.barcode}</td>
         <td>${data.supplierName}</td>
         <td>${data.supplierContact}</td>
-        <td>${data.dateUpdate}</td>
-        <td>${data.userUpdate}</td>
         <td>${data.description}</td>
         <td>${data.min}</td>
         <td>${data.max}</td>
+        <td>${data.dateUpdate}</td>
         <td>
             <span>
                 <button data-id="${data.id}" class="btn btn-primary edit-btn" style="margin:5px;">
@@ -625,6 +629,39 @@ function loadContent(page, callback) {
             document.getElementById("signup-btn")?.addEventListener("click", function() {
                 loadContent("signup.html");
             }); 
+
+            // show login password
+            document.getElementById('toggle-password-btn')?.addEventListener('click', function () {
+                const passwordInput = document.getElementById('login-password-input');
+                const icon = document.getElementById('toggle-password-icon');
+                
+            
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+
+            // show signup password
+            document.getElementById('toggle-signup-password-btn')?.addEventListener('click', function () {
+                const passwordSignupInput = document.getElementById('signup-password-input');
+                const icon = document.getElementById('toggle-signup-password-btn');
+
+                if (passwordSignupInput.type === 'password') {
+                    passwordSignupInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordSignupInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
 
             // Login page comfirm button
             document.getElementById('login-comfirm-btn')?.addEventListener('click', async () => {

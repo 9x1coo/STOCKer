@@ -4,12 +4,19 @@
         <label class="header-text m-5">Sign Up</label>
         <div class="mb-3 row align-items-center">
             <label class="mb-1 label-text">Email:</label>
-            <input type="email" placeholder="abc@example.com" class="input-box" id="signup-email-input" required>
+            <div class="position-relative w-100">
+                <input type="email" placeholder="abc@example.com" class="input-box" id="signup-email-input" required>
+            </div>
             <label class="error-prompt" id="error-email" style="display: none;">Invalid email.</label>
         </div>
         <div class="mb-3 row align-items-center">
             <label class="mb-1 label-text">Password:</label> 
-            <input type="password" placeholder="Enter your password" class="input-box" id="signup-password-input" required>
+            <div class="position-relative w-100">
+                <input type="password" placeholder="Enter your password" class="input-box" id="signup-password-input" required>
+                <button type="button" class="show-pass-btn" id="toggle-signup-password-btn">
+                    <i id="toggle-password-icon" class="fa-solid fa-eye"></i>
+                </button>
+            </div>
             <label class="error-prompt" id="error-password" style="display: none;">Password must be at least 8 characters long, including at least 1 uppercase and lowercase letter, 1 number, and 1 special character.</label>
         </div>      
         <div class="mt-5">
