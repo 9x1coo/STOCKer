@@ -24,7 +24,7 @@ const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
+    if (user && user.emailVerified) {
         console.log("User is logged in: ", user);
         currentUser = user.uid;
         currentUserEmail = user.email;
@@ -61,8 +61,7 @@ async function sendEmail(user) {
     sendEmailVerification(user)
         .then(() => {
             console.log('Email verification sent!');
-            alert('Please verify your email before logging in!');
-            loadContent('home.html');
+            alert('Please check your email to verify your account.');
         })
         .catch((error) => {
             console.error('Error sending email verification:', error.message);
@@ -132,9 +131,8 @@ async function getSignupInputData() {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-
+            
             await sendEmail(user);
-            alert("Please check your email to verify your account.");
             await handleLogout();
         } catch (error) {
             console.error("Error signing up:", error.message);
