@@ -762,7 +762,7 @@ function loadContent(page, callback) {
 }
  
 if (window.location.pathname.includes("main.html")) {
-    loadContent('login.html');
+    loadContent('home.html');
 }
 
 
