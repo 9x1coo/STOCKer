@@ -91,6 +91,8 @@ async function checkUserLogin() {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
+        await user.reload();
+
         if (user.emailVerified) {
             alert('Login successful!');
         } else {
@@ -132,7 +134,8 @@ async function getSignupInputData() {
             const user = userCredential.user;
 
             await sendEmail(user);
-
+            alert("Please check your email to verify your account.");
+            await handleLogout();
         } catch (error) {
             console.error("Error signing up:", error.message);
             alert("Error signing up. Please try again.");
