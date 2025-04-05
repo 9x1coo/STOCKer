@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {query, serverTimestamp, getFirestore, doc, addDoc, setDoc, collection, getDocs, getDoc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 let currentUser = null;
@@ -25,18 +25,24 @@ const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        console.log("User is logged in: ", user);
-        currentUser = user.uid;
-        currentUserEmail = user.email;
-        inventoryCol = `users/${currentUser}/Inventory`;
-        cupplierCol = `users/${currentUser}/Supplier`;
-        document.getElementById('logout-btn').style.display = "block";
-        document.getElementById('login-btn').style.display = "none";
+        if (user.emailVerified) {
+            console.log("User is logged in: ", user);
+            currentUser = user.uid;
+            currentUserEmail = user.email;
+            inventoryCol = `users/${currentUser}/Inventory`;
+            cupplierCol = `users/${currentUser}/Supplier`;
+            document.getElementById('logout-btn').style.display = "block";
+            document.getElementById('login-btn').style.display = "none";
 
-        loadContent('inventory.html', () => {
-            loadSuppliers();
-            loadData();
-        }); 
+            loadContent('inventory.html', () => {
+                loadSuppliers();
+                loadData();
+            }); 
+        } else {
+            alert('Please verify your email before proceeding.');
+            loadContent('home.html');
+        }
+
     } else {
         console.log("No user is logged in.");
         loadContent('home.html');
@@ -111,9 +117,18 @@ async function getSignupInputData() {
 
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-            alert('Sign Up successful! You may login now.');
-            loadContent('login.html');
+            sendEmailVerification(user)
+                .then(() => {
+                    console.log('Email verification sent!');
+                    alert('Please verify your email before logging in!');
+                    loadContent('login.html');
+                })
+                .catch((error) => {
+                    console.error('Error sending email verification:', error.message);
+                    alert('Email not found! Please check your email!');
+                });
 
         } catch (error) {
             console.error("Error signing up:", error.message);

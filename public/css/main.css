@@ -251,6 +251,18 @@ cursor: pointer;
   opacity: 70%;
 }
 
+.logo-text{
+  background-color: transparent;
+  color: var(--primary);
+  border: none; 
+  transition: .5s;
+  font-size: 3rem; 
+  font-weight: 800;
+}.logo-text:hover{
+  opacity: 70%;
+}
+
+
 .header-text{
   color: var(--dark);
   font-weight: bold;
