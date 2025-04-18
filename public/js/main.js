@@ -56,6 +56,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+
 // send verification email
 async function sendEmail(user) {
     sendEmailVerification(user)
@@ -884,3 +885,4 @@ if (window.location.pathname.includes("main.html")) {
         });
     }, {offset: '80%'});
 })(jQuery);
+

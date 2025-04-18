@@ -45,7 +45,7 @@
 .data-table td:nth-child(11),
 .data-table th:nth-child(12),
 .data-table td:nth-child(12) {
-    min-width: 95px;
+    min-width: 120px;
 }
 
 .data-table th:nth-child(2),
