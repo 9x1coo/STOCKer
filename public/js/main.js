@@ -12,13 +12,13 @@ let cupplierCol = null;
 let allData = [];
 
 const firebaseApp = initializeApp({
-    apiKey: "AIzaSyA7TsXEByLxZLuPga32MlbBzI92zSXpelY",
-    authDomain: "stocker-83325.firebaseapp.com",
-    projectId: "stocker-83325",
-    storageBucket: "stocker-83325.firebasestorage.app",
-    messagingSenderId: "364662570826",
-    appId: "1:364662570826:web:e5ae09dcc83d81acc24bb3",
-    measurementId: "G-ZMLHCEF9H3"
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
 });
 
 const firestore = getFirestore(firebaseApp);
