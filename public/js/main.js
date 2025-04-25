@@ -11,6 +11,8 @@ let cupplierCol = null;
 
 let allData = [];
 
+console.log("Firebase config:", window.FIREBASE_CONFIG);
+
 const firebaseApp = initializeApp(window.FIREBASE_CONFIG);
 
 const firestore = getFirestore(firebaseApp);

@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// 🔥 Add this route to expose Firebase config as a JS file
 app.get('/config.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.send(`window.FIREBASE_CONFIG = {
@@ -16,14 +15,14 @@ app.get('/config.js', (req, res) => {
   };`);
 });
 
-// 🔁 Serve static files (HTML, CSS, JS, etc.)
-app.use(express.static('public')); // or your folder name
+app.use(express.static('public'));
 
-// 🔁 Your existing routes...
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(__dirname + '/public/main.html');
 });
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+
+console.log("Firebase API Key:", process.env.FIREBASE_API_KEY);
