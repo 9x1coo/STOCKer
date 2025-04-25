@@ -1,10 +1,1 @@
-window.FIREBASE_CONFIG = {
-    apiKey: "AIzaSyA7TsXEByLxZLuPga32MlbBzI92zSXpelY",
-    authDomain: "stocker-83325.firebaseapp.com",
-    projectId: "stocker-83325",
-    storageBucket: "stocker-83325.firebasestorage.app",
-    messagingSenderId: "364662570826",
-    appId: "1:364662570826:web:e5ae09dcc83d81acc24bb3",
-    measurementId: "G-ZMLHCEF9H3"
-};
-  
+function _0x5d6e(_0xb644ac,_0xa6da54){var _0x5c5d60=_0x5c5d();return _0x5d6e=function(_0x5d6e0a,_0x169f95){_0x5d6e0a=_0x5d6e0a-0x88;var _0x345946=_0x5c5d60[_0x5d6e0a];return _0x345946;},_0x5d6e(_0xb644ac,_0xa6da54);}var _0x466ffe=_0x5d6e;(function(_0x330f75,_0x1b4a21){var _0x526b4d=_0x5d6e,_0x169c1e=_0x330f75();while(!![]){try{var _0x4f0f30=-parseInt(_0x526b4d(0x97))/0x1+parseInt(_0x526b4d(0x91))/0x2+parseInt(_0x526b4d(0x8b))/0x3*(-parseInt(_0x526b4d(0x8f))/0x4)+-parseInt(_0x526b4d(0x8c))/0x5*(parseInt(_0x526b4d(0x88))/0x6)+-parseInt(_0x526b4d(0x8a))/0x7*(parseInt(_0x526b4d(0x90))/0x8)+parseInt(_0x526b4d(0x8d))/0x9*(parseInt(_0x526b4d(0x93))/0xa)+parseInt(_0x526b4d(0x95))/0xb;if(_0x4f0f30===_0x1b4a21)break;else _0x169c1e['push'](_0x169c1e['shift']());}catch(_0x18cba3){_0x169c1e['push'](_0x169c1e['shift']());}}}(_0x5c5d,0x1a3cf),window[_0x466ffe(0x92)]={'apiKey':'AIzaSyA7TsXEByLxZLuPga32MlbBzI92zSXpelY','authDomain':_0x466ffe(0x89),'projectId':_0x466ffe(0x96),'storageBucket':_0x466ffe(0x94),'messagingSenderId':'364662570826','appId':_0x466ffe(0x8e),'measurementId':'G-ZMLHCEF9H3'});function _0x5c5d(){var _0x5e9bdc=['572061VHFeRd','3MftwDP','5690mDORsp','18AdsnNp','1:364662570826:web:e5ae09dcc83d81acc24bb3','165164eexNGd','8bdzjTx','10668PxUTWT','FIREBASE_CONFIG','1003780FSNZxb','stocker-83325.firebasestorage.app','1028247sWhQaj','stocker-83325','64530dVbZKA','24jQlgkC','stocker-83325.firebaseapp.com'];_0x5c5d=function(){return _0x5e9bdc;};return _0x5c5d();}
