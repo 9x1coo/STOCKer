@@ -23,7 +23,7 @@ onAuthStateChanged(auth, async (user) => {
         await user.reload();
         if (user.emailVerified) {
             console.log("User is verified: ", user.emailVerified);
-            console.log("User is logged in: ", user);
+            console.log("User is logged in");
             currentUser = user.uid;
             currentUserEmail = user.email;
             inventoryCol = `users/${currentUser}/Inventory`;
