@@ -87,9 +87,8 @@
     <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
     <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
     
-
     <script src="js/config.js"></script>
-    <script type="module" src="api/main.js"></script>
+    <script type="module" src="js/main.js"></script>
     <script>
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
         console.log("check link to vercel");
@@ -97,5 +96,15 @@
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="https://cdn.vercel-insights.com/script.js"></script>       
     <script defer src="https://cdn.vercel-insights.com/v1/script.debug.js"></script>
+    <script>
+        // Send a log to Vercel Runtime Logs
+        fetch('/api/log', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: 'Page loaded', timestamp: Date.now() })
+        });
+    </script>  
 </body>
 </html>
