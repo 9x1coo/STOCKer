@@ -35,7 +35,6 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         await user.reload();
         if (user.emailVerified) {
-            console.log("User is verified: ", user.emailVerified);
             console.log("User is logged in");
             logToServer("User is logged in: " + user.uid);
             currentUser = user.uid;
@@ -52,6 +51,7 @@ onAuthStateChanged(auth, async (user) => {
             document.getElementById('logo-btn').disabled = true;
         } else {
             console.log("User is not verified. Logging out.");
+            logToServer("User is was not verified and logout: " + currentUser);
             await handleLogout();
             document.getElementById('spinner').style.display = "none";
         }
@@ -69,9 +69,11 @@ async function sendEmail(user) {
         .then(() => {
             console.log('Email verification sent!');
             alert('Please check your email to verify your account.');
+            logToServer("Email verificaition sent to user: " + currentUser);
         })
         .catch((error) => {
             console.error('Error sending email verification:', error.message);
+            logToServer("Error sending email verification to user: " + currentUser);
             alert('Email not found! Please check your email!');
         });
 }
@@ -143,10 +145,12 @@ async function getSignupInputData() {
             await sendEmail(user);
             await handleLogout();
             console.log("Successful sigin.");
+            logToServer("Successful signin of user: " + user.uid);
         } catch (error) {
             console.error("Error signing up:", error.message);
             alert("Error signing up. Please try again.");
             console.log("Error signin.");
+            logToServer("A user has occured a sigin error.");
         }
     }
 }
@@ -166,6 +170,7 @@ async function resetPassword() {
         document.getElementById('error-email').style.display = "none";
         loadContent('home.html');
         console.log("Reset password email sent.");
+        logToServer("Reset password email sent.");
     } catch (error) {
         console.error("Error sending password reset email:", error.message);
         if (error.code === 'auth/user-not-found') {
@@ -296,6 +301,7 @@ async function handleEdit(id, dateAdded) {
                 try {
                     await updateDoc(doc(firestore, inventoryCol, id), updatedData);
                     await loadData();
+                    logToServer("User have editted a data: " + currentUser);
                 } catch (error) {
                     console.error("Error adding document: ", error);
                 }
@@ -321,6 +327,7 @@ async function handleDelete(id) {
         try {
             await deleteDoc(doc(firestore, inventoryCol, id));
             await loadData();
+            logToServer("User have deleted a data: " + currentUser);
         } catch (error) {
             console.error("Error deleting supplier: ", error);
         }
@@ -412,6 +419,9 @@ async function loadData() {
         document.getElementById('noti-count').innerText = count;
         document.getElementById('notiPromptModal').style.display = 'block';
     }
+
+    logToServer("Load inventory data for: " + currentUser);
+
 }
 
 //take photo
@@ -478,6 +488,7 @@ async function saveInputData() {
             data.id = docRef.id;
             loadData();
             resetInput();
+            logToServer("User have added new data: " + currentUser);
         } catch (error) {
             console.error("Error adding document: ", error);
         }
@@ -496,8 +507,8 @@ async function loadSuppliers() {
 
         if (querySnapshot.empty) {
             const defaultData = { name: 'Unknown Supplier', contact: 'N/A' };
-            const docRef = await addDoc(collection(firestore, cupplierCol), defaultData);
-            return;
+            await addDoc(collection(firestore, cupplierCol), defaultData);
+            return loadSuppliers(); 
         }
 
         querySnapshot.forEach(doc => {
@@ -533,7 +544,7 @@ async function loadSuppliers() {
         addNew.addEventListener("click", function () {
             document.getElementById('supplierPromptModal').style.display = 'block';
         });
-
+        logToServer("Load supplier data for: " + currentUser);
     } catch (error) {
         console.error("Error loading suppliers: ", error);
     }
@@ -548,6 +559,7 @@ async function deleteSupplier(id) {
             document.getElementById('supplier-input').textContent = "Select Supplier";
             document.getElementById('supplier-input-id').value = "";
             document.getElementById('supplier-input').disabled = false;
+            logToServer("User have deleted a supplier: " + currentUser);
         } catch (error) {
             console.error("Error deleting supplier: ", error);
         }
@@ -715,15 +727,18 @@ function loadContent(page, callback) {
 
             // Inventory price input
             document.getElementById('price-input')?.addEventListener('input', function () {
-                
                 let val = this.value.replace(/[^0-9.]/g, '');                
                 const dotIndex = val.indexOf('.');
-     
+            
                 if (dotIndex !== -1) {
-                  val = val.slice(0, dotIndex + 1) + val.slice(dotIndex + 1).replace(/\./g, '').slice(0, 2);
+                    val = val.slice(0, dotIndex + 1) + val.slice(dotIndex + 1).replace(/\./g, '').slice(0, 2);
                 }
             
-                if (val.startsWith('.')) val = '0' + val;
+                if (val === '0') {
+                    val = '0.';
+                } else if (val.startsWith('.')) {
+                    val = '0' + val;
+                }
             
                 this.value = val;
             });
@@ -841,6 +856,8 @@ function loadContent(page, callback) {
             
                 XLSX.utils.book_append_sheet(wb, ws, "Inventory Data");
                 XLSX.writeFile(wb, "Inventory_Export_"+ getDate() +".xlsx");
+
+                logToServer("User have export a data: " + currentUser);
             });
 
             if (typeof callback === 'function') {
