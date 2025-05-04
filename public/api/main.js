@@ -70,6 +70,7 @@ async function handleLogout() {
         document.getElementById('logout-btn').style.display = "none";
         document.getElementById('login-btn').style.display = "block";
         loadContent('home.html');
+        console.log("User logout.");
     } catch (error) {
         console.error("Error signing out:", error.message);
         alert('Error logging out: ' + error.message);
@@ -93,6 +94,7 @@ async function checkUserLogin() {
     } catch (error) {
         console.error('Error logging in user:', error.message);
         document.getElementById('error-message').style.display = "block";
+        console.log("Unsuccessful user login.");
     }
 } 
 
@@ -126,9 +128,11 @@ async function getSignupInputData() {
             
             await sendEmail(user);
             await handleLogout();
+            console.log("Successful sigin.");
         } catch (error) {
             console.error("Error signing up:", error.message);
             alert("Error signing up. Please try again.");
+            console.log("Error signin.");
         }
     }
 }
@@ -147,6 +151,7 @@ async function resetPassword() {
         alert('Password reset email sent! Check your inbox.');
         document.getElementById('error-email').style.display = "none";
         loadContent('home.html');
+        console.log("Reset password email sent.");
     } catch (error) {
         console.error("Error sending password reset email:", error.message);
         if (error.code === 'auth/user-not-found') {
