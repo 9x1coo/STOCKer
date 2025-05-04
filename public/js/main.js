@@ -726,21 +726,26 @@ function loadContent(page, callback) {
             document.getElementById('take-photo-input')?.addEventListener('change', handlePhotoSelection);
 
             // Inventory price input
-            document.getElementById('price-input')?.addEventListener('input', function () {
-                let val = this.value.replace(/[^0-9.]/g, '');                
+            const priceInput = document.getElementById('price-input');
+            priceInput?.addEventListener('input', function () {
+                let val = this.value.replace(/[^0-9.]/g, '');
+                if (val === '') {
+                    this.value = '';
+                    return;
+                }
                 const dotIndex = val.indexOf('.');
-            
                 if (dotIndex !== -1) {
-                    val = val.slice(0, dotIndex + 1) + val.slice(dotIndex + 1).replace(/\./g, '').slice(0, 2);
+                    val = val.slice(0, dotIndex + 1) +
+                        val.slice(dotIndex + 1).replace(/\./g, '').slice(0, 2);
                 }
-            
-                if (val === '0') {
-                    val = '0.';
-                } else if (val.startsWith('.')) {
-                    val = '0' + val;
-                }
-            
+                if (val.startsWith('.')) val = '0' + val;
                 this.value = val;
+            });
+            // Format to 2 decimal places on blur
+            priceInput?.addEventListener('blur', function () {
+                if (this.value && !isNaN(this.value)) {
+                    this.value = parseFloat(this.value).toFixed(2);
+                }
             });
 
             // Inventory unit selection button
