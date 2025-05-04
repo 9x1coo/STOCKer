@@ -18,6 +18,18 @@ const firestore = getFirestore(firebaseApp);
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
+// send logs to vercel runtime
+function logToServer(message) {
+    fetch('/api/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message, timestamp: new Date().toISOString() })
+    });
+  }
+  
+
 onAuthStateChanged(auth, async (user) => {
     document.getElementById('spinner').style.display = "block";
     if (user) {
@@ -25,6 +37,7 @@ onAuthStateChanged(auth, async (user) => {
         if (user.emailVerified) {
             console.log("User is verified: ", user.emailVerified);
             console.log("User is logged in");
+            logToServer("User is logged in: " + user.uid);
             currentUser = user.uid;
             currentUserEmail = user.email;
             inventoryCol = `users/${currentUser}/Inventory`;
@@ -70,10 +83,11 @@ async function handleLogout() {
         document.getElementById('logout-btn').style.display = "none";
         document.getElementById('login-btn').style.display = "block";
         loadContent('home.html');
-        console.log("User logout.");
+        logToServer("User have logout: " + currentUser);
     } catch (error) {
         console.error("Error signing out:", error.message);
         alert('Error logging out: ' + error.message);
+        logToServer("User have logout error: " + currentUser);
     }
 }
 
@@ -94,7 +108,7 @@ async function checkUserLogin() {
     } catch (error) {
         console.error('Error logging in user:', error.message);
         document.getElementById('error-message').style.display = "block";
-        console.log("Unsuccessful user login.");
+        logToServer("User have unsuccessful logout: " + currentUser);
     }
 } 
 

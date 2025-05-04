@@ -96,15 +96,6 @@
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="https://cdn.vercel-insights.com/script.js"></script>       
     <script defer src="https://cdn.vercel-insights.com/v1/script.debug.js"></script>
-    <script>
-        // Send a log to Vercel Runtime Logs
-        fetch('/api/log', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: 'Page loaded', timestamp: Date.now() })
-        });
-    </script>  
+
 </body>
 </html>
